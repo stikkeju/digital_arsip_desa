@@ -1,3 +1,4 @@
+<script lang="ts">
 	import { Search, Filter, Plus, Send, LayoutGrid, List, FileBadge, ExternalLink } from '@lucide/svelte';
 	import { goto } from '$app/navigation';
 
