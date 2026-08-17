@@ -6,17 +6,20 @@ import { env } from '$env/dynamic/private';
 import { Readable } from 'stream';
 
 const getDriveAuth = () => {
-	if (!env.GOOGLE_SERVICE_ACCOUNT_JSON) {
-		throw new Error('GOOGLE_SERVICE_ACCOUNT_JSON belum dikonfigurasi di .env');
+	if (!env.GOOGLE_CLIENT_ID || !env.GOOGLE_CLIENT_SECRET || !env.GOOGLE_REFRESH_TOKEN) {
+		throw new Error('Kredensial OAuth2 (CLIENT_ID, CLIENT_SECRET, REFRESH_TOKEN) belum dikonfigurasi di .env');
 	}
-	const creds = JSON.parse(env.GOOGLE_SERVICE_ACCOUNT_JSON);
-	return new google.auth.GoogleAuth({
-		credentials: {
-			client_email: creds.client_email,
-			private_key: creds.private_key
-		},
-		scopes: ['https://www.googleapis.com/auth/drive']
+
+	const oauth2Client = new google.auth.OAuth2(
+		env.GOOGLE_CLIENT_ID,
+		env.GOOGLE_CLIENT_SECRET
+	);
+
+	oauth2Client.setCredentials({
+		refresh_token: env.GOOGLE_REFRESH_TOKEN
 	});
+
+	return oauth2Client;
 };
 
 async function getOrCreateFolder(drive: any, parentId: string, folderName: string) {
