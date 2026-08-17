@@ -14,7 +14,7 @@
 
 	// Extract unique no_index
 	let uniqueIndices = $derived(
-		Array.from(new Set(arsipKeluar.map(s => s.no_index).filter(Boolean))).sort()
+		Array.from(new Set(arsipKeluar.map(s => s.no_index ? s.no_index.split('/')[0].trim() : '').filter(Boolean))).sort()
 	);
 
 	// Client-side search filtering
@@ -29,7 +29,10 @@
 			}
 			
 			// Index filter logic
-			if (filterIndex && surat.no_index !== filterIndex) return false;
+			if (filterIndex) {
+				const currentIdx = surat.no_index ? surat.no_index.split('/')[0].trim() : '';
+				if (currentIdx !== filterIndex) return false;
+			}
 
 			// Smart Search logic
 			if (!searchQuery.trim()) return true;
