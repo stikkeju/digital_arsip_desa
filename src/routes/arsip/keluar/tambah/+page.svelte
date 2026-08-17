@@ -3,6 +3,8 @@
 	import { supabase } from '$lib/supabaseClient';
 	import { goto } from '$app/navigation';
 
+	let { data } = $props();
+
 	let isLoading = $state(false);
 
 	// State for the main fixed columns
@@ -125,6 +127,11 @@
 					<div class="space-y-1">
 						<label class="text-sm font-medium text-slate-700" for="no_register">Nomor Register</label>
 						<input type="text" id="no_register" bind:value={formData.no_register} class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-primary-500 focus:ring-1 focus:ring-primary-500 outline-none" required />
+						{#if data.lastRegister}
+							<p class="text-xs text-slate-500 mt-1">Nomor register terakhir: <span class="font-bold text-slate-700">{data.lastRegister}</span></p>
+						{:else}
+							<p class="text-xs text-slate-500 mt-1">Belum ada data register.</p>
+						{/if}
 					</div>
 					
 					<div class="space-y-1">
