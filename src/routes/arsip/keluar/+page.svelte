@@ -1,5 +1,5 @@
-<script lang="ts">
 	import { Search, Filter, Plus, Send, LayoutGrid, List, FileBadge, ExternalLink } from '@lucide/svelte';
+	import { goto } from '$app/navigation';
 
 	let { data } = $props();
 	let arsipKeluar = $derived(data.arsipKeluar || []);
@@ -140,7 +140,12 @@
 				<!-- Card List -->
 				<div class="space-y-4 pb-4">
 					{#each filteredArsip as surat}
-						<div class="group overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition-all hover:shadow-md">
+						<!-- svelte-ignore a11y_click_events_have_key_events -->
+						<!-- svelte-ignore a11y_no_static_element_interactions -->
+						<div 
+							onclick={() => goto(`/arsip/keluar/${surat.id}`)}
+							class="group overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition-all hover:shadow-md hover:border-primary-300 cursor-pointer"
+						>
 							<!-- Card Header -->
 							<div class="border-b border-slate-100 bg-slate-50/50 px-4 py-3 flex items-center justify-between">
 								<div class="flex items-center gap-2">
@@ -157,7 +162,7 @@
 
 							<!-- Card Body -->
 							<div class="p-4 space-y-3 relative">
-								<h3 class="text-[15px] font-bold text-slate-800 leading-snug pr-8">{surat.perihal || 'Tanpa Perihal'}</h3>
+								<h3 class="text-[15px] font-bold text-slate-800 leading-snug pr-8 group-hover:text-primary-700 transition-colors">{surat.perihal || 'Tanpa Perihal'}</h3>
 								
 								<div class="flex items-center gap-2 text-sm text-slate-600">
 									<div class="flex h-6 w-6 items-center justify-center rounded-full bg-slate-100 flex-shrink-0">
@@ -173,7 +178,12 @@
 								<!-- File Action -->
 								{#if surat.file_url}
 									<div class="pt-2">
-										<a href={surat.file_url} target="_blank" class="inline-flex items-center gap-1.5 text-xs font-semibold text-primary-600 hover:text-primary-700 bg-primary-50 px-3 py-1.5 rounded-lg border border-primary-100 transition-colors">
+										<a 
+											href={surat.file_url} 
+											target="_blank" 
+											onclick={(e) => e.stopPropagation()}
+											class="inline-flex items-center gap-1.5 text-xs font-semibold text-primary-600 hover:text-primary-700 bg-primary-50 px-3 py-1.5 rounded-lg border border-primary-100 transition-colors"
+										>
 											<FileBadge size={14} />
 											Buka Dokumen
 											<ExternalLink size={12} class="ml-0.5" />
@@ -201,16 +211,22 @@
 						</thead>
 						<tbody class="divide-y divide-slate-100">
 							{#each filteredArsip as surat}
-								<tr class="hover:bg-slate-50/80 transition-colors">
-									<td class="px-4 py-3 font-bold text-slate-800">{surat.no_register}</td>
+								<tr onclick={() => goto(`/arsip/keluar/${surat.id}`)} class="hover:bg-primary-50/50 transition-colors cursor-pointer group">
+									<td class="px-4 py-3 font-bold text-slate-800 group-hover:text-primary-700">{surat.no_register}</td>
 									<td class="px-4 py-3 font-medium">{surat.no_index || '-'}</td>
 									<td class="px-4 py-3 whitespace-nowrap text-slate-500">{formatDate(surat.tanggal_pembuatan)}</td>
 									<td class="px-4 py-3 font-medium text-slate-700">{surat.tujuan || '-'}</td>
-									<td class="px-4 py-3 font-semibold text-slate-800">{surat.perihal || '-'}</td>
+									<td class="px-4 py-3 font-semibold text-slate-800 group-hover:text-primary-700">{surat.perihal || '-'}</td>
 									<td class="px-4 py-3 text-slate-500">{surat.keterangan || '-'}</td>
 									<td class="px-4 py-3 text-center align-middle">
 										{#if surat.file_url}
-											<a href={surat.file_url} target="_blank" class="inline-flex items-center justify-center p-1.5 text-primary-600 bg-primary-50 rounded-lg hover:bg-primary-100 transition-colors" title="Lihat Dokumen">
+											<a 
+												href={surat.file_url} 
+												target="_blank" 
+												onclick={(e) => e.stopPropagation()}
+												class="inline-flex items-center justify-center p-1.5 text-primary-600 bg-primary-50 rounded-lg hover:bg-primary-100 transition-colors" 
+												title="Lihat Dokumen"
+											>
 												<FileBadge size={18} />
 											</a>
 										{:else}
