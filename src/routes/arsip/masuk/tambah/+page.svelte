@@ -56,8 +56,8 @@
 	}
 </script>
 
-<div class="flex h-screen flex-col bg-slate-50">
-	<header class="bg-white px-4 py-4 shadow-sm flex items-center gap-3">
+<div class="flex h-full flex-col bg-slate-50">
+	<header class="bg-white px-4 py-4 shadow-sm flex items-center gap-3 sticky top-0 z-10">
 		<button onclick={() => goto('/arsip/masuk')} class="p-1 text-slate-600 hover:text-slate-900 active:bg-slate-100 rounded-full">
 			<ArrowLeft size={24} />
 		</button>
