@@ -29,6 +29,7 @@
 			const terms = searchQuery.toLowerCase().split(' ').filter(t => t);
 			const fullText = [
 				surat.no_register || '',
+				surat.no_surat || '',
 				surat.pengirim || '',
 				surat.perihal || '',
 				surat.keterangan || ''
@@ -133,6 +134,11 @@
 									<span class="rounded-lg bg-blue-100 px-2.5 py-1 text-xs font-bold text-blue-700 uppercase tracking-wider">
 										Reg: {surat.no_register}
 									</span>
+									{#if surat.no_surat}
+										<span class="text-xs font-semibold text-slate-500 bg-white border border-slate-200 px-2 py-0.5 rounded-md shadow-sm truncate max-w-[120px]" title={surat.no_surat}>
+											{surat.no_surat}
+										</span>
+									{/if}
 								</div>
 								<span class="text-[11px] font-medium text-slate-500 bg-slate-100 px-2 py-1 rounded-md">{formatDate(surat.tanggal_terima)}</span>
 							</div>
@@ -178,6 +184,7 @@
 						<thead class="bg-slate-50/80 text-xs font-bold uppercase tracking-wider text-slate-500 border-b border-slate-200">
 							<tr>
 								<th class="px-4 py-4 whitespace-nowrap">No. Reg</th>
+								<th class="px-4 py-4 whitespace-nowrap">No. Surat</th>
 								<th class="px-4 py-4 whitespace-nowrap">Tgl. Terima</th>
 								<th class="px-4 py-4 min-w-[200px]">Pengirim</th>
 								<th class="px-4 py-4 min-w-[250px]">Perihal</th>
@@ -189,6 +196,7 @@
 							{#each filteredArsip as surat}
 								<tr onclick={() => goto(`/arsip/masuk/${surat.id}`)} class="hover:bg-blue-50/50 transition-colors cursor-pointer group">
 									<td class="px-4 py-3 font-bold text-slate-800 group-hover:text-blue-700">{surat.no_register}</td>
+									<td class="px-4 py-3 font-medium text-slate-600">{surat.no_surat || '-'}</td>
 									<td class="px-4 py-3 whitespace-nowrap text-slate-500">{formatDate(surat.tanggal_terima)}</td>
 									<td class="px-4 py-3 font-medium text-slate-700">{surat.pengirim || '-'}</td>
 									<td class="px-4 py-3 font-semibold text-slate-800 group-hover:text-blue-700">{surat.perihal || '-'}</td>

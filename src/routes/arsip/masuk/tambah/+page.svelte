@@ -10,6 +10,7 @@
 	// State for the main fixed columns (Arsip Masuk)
 	let formData = $state({
 		no_register: '',
+		no_surat: '',
 		tanggal_terima: '',
 		pengirim: '',
 		perihal: '',
@@ -124,14 +125,22 @@
 			<div class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm space-y-4">
 				<h2 class="font-semibold text-slate-800 border-b border-slate-100 pb-2">Informasi Utama</h2>
 				
-				<div class="space-y-1">
-					<label class="text-sm font-medium text-slate-700" for="no_register">Nomor Register</label>
-					<input type="text" id="no_register" bind:value={formData.no_register} class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-primary-500 focus:ring-1 focus:ring-primary-500 outline-none" required />
-					{#if data.lastRegister}
-						<p class="text-xs text-slate-500 mt-1">Nomor register terakhir yang tersimpan: <span class="font-bold text-slate-700">{data.lastRegister}</span></p>
-					{:else}
-						<p class="text-xs text-slate-500 mt-1">Belum ada data register sebelumnya.</p>
-					{/if}
+				<div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+					<div class="space-y-1">
+						<label class="text-sm font-medium text-slate-700" for="no_register">Nomor Register</label>
+						<input type="text" id="no_register" bind:value={formData.no_register} class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-primary-500 focus:ring-1 focus:ring-primary-500 outline-none" required />
+						{#if data.lastRegister}
+							<p class="text-xs text-slate-500 mt-1">Nomor register terakhir yang tersimpan: <span class="font-bold text-slate-700">{data.lastRegister}</span></p>
+						{:else}
+							<p class="text-xs text-slate-500 mt-1">Belum ada data register sebelumnya.</p>
+						{/if}
+					</div>
+
+					<div class="space-y-1">
+						<label class="text-sm font-medium text-slate-700" for="no_surat">Nomor Surat Asli</label>
+						<input type="text" id="no_surat" bind:value={formData.no_surat} class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-primary-500 focus:ring-1 focus:ring-primary-500 outline-none" placeholder="Cth: B.123/DISPENDUK/2026" />
+						<p class="text-xs text-slate-500 mt-1">Isi jika surat memiliki nomor resmi dari pengirim.</p>
+					</div>
 				</div>
 
 				<div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
