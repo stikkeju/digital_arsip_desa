@@ -8,17 +8,32 @@
 	let viewMode: 'card' | 'table' = $state('card');
 	let searchQuery = $state('');
 
+	let filterMonth = $state('');
+	let filterYear = $state('');
+
 	// Client-side search filtering
 	let filteredArsip = $derived(
 		arsipMasuk.filter((surat) => {
-			if (!searchQuery) return true;
-			const q = searchQuery.toLowerCase();
-			return (
-				(surat.no_register && surat.no_register.toLowerCase().includes(q)) ||
-				(surat.pengirim && surat.pengirim.toLowerCase().includes(q)) ||
-				(surat.perihal && surat.perihal.toLowerCase().includes(q)) ||
-				(surat.keterangan && surat.keterangan.toLowerCase().includes(q))
-			);
+			// Date filter logic
+			if (filterMonth || filterYear) {
+				if (!surat.tanggal_terima) return false;
+				const d = new Date(surat.tanggal_terima);
+				if (filterYear && d.getFullYear().toString() !== filterYear) return false;
+				if (filterMonth && (d.getMonth() + 1).toString() !== filterMonth) return false;
+			}
+
+			// Smart Search logic
+			if (!searchQuery.trim()) return true;
+			
+			const terms = searchQuery.toLowerCase().split(' ').filter(t => t);
+			const fullText = [
+				surat.no_register || '',
+				surat.pengirim || '',
+				surat.perihal || '',
+				surat.keterangan || ''
+			].join(' ').toLowerCase();
+
+			return terms.every(term => fullText.includes(term));
 		})
 	);
 
@@ -42,8 +57,8 @@
 
 	<div class="space-y-4 p-4">
 		<!-- Actions Bar -->
-		<div class="flex items-center gap-2">
-			<div class="relative flex-1">
+		<div class="flex flex-col sm:flex-row items-center gap-2">
+			<div class="relative flex-1 w-full">
 				<Search class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
 				<input 
 					type="text" 
@@ -53,19 +68,44 @@
 				/>
 			</div>
 			
-			<div class="flex rounded-xl border border-slate-200 bg-white p-1 shadow-sm">
-				<button 
-					class="rounded-lg p-1.5 transition-colors {viewMode === 'card' ? 'bg-blue-50 text-blue-600 shadow-sm' : 'text-slate-400 hover:text-slate-600'}"
-					onclick={() => viewMode = 'card'}
-				>
-					<LayoutGrid size={18} strokeWidth={2.5} />
-				</button>
-				<button 
-					class="rounded-lg p-1.5 transition-colors {viewMode === 'table' ? 'bg-blue-50 text-blue-600 shadow-sm' : 'text-slate-400 hover:text-slate-600'}"
-					onclick={() => viewMode = 'table'}
-				>
-					<List size={18} strokeWidth={2.5} />
-				</button>
+			<div class="flex gap-2 w-full sm:w-auto">
+				<select bind:value={filterMonth} class="rounded-xl border border-slate-200 bg-white py-2 px-3 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 flex-1 sm:flex-none">
+					<option value="">Semua Bulan</option>
+					<option value="1">Januari</option>
+					<option value="2">Februari</option>
+					<option value="3">Maret</option>
+					<option value="4">April</option>
+					<option value="5">Mei</option>
+					<option value="6">Juni</option>
+					<option value="7">Juli</option>
+					<option value="8">Agustus</option>
+					<option value="9">September</option>
+					<option value="10">Oktober</option>
+					<option value="11">November</option>
+					<option value="12">Desember</option>
+				</select>
+
+				<select bind:value={filterYear} class="rounded-xl border border-slate-200 bg-white py-2 px-3 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 flex-1 sm:flex-none">
+					<option value="">Semua Tahun</option>
+					{#each Array.from({length: 10}, (_, i) => new Date().getFullYear() - i) as year}
+						<option value={year.toString()}>{year}</option>
+					{/each}
+				</select>
+
+				<div class="flex rounded-xl border border-slate-200 bg-white p-1 shadow-sm shrink-0">
+					<button 
+						class="rounded-lg p-1.5 transition-colors {viewMode === 'card' ? 'bg-blue-50 text-blue-600 shadow-sm' : 'text-slate-400 hover:text-slate-600'}"
+						onclick={() => viewMode = 'card'}
+					>
+						<LayoutGrid size={18} strokeWidth={2.5} />
+					</button>
+					<button 
+						class="rounded-lg p-1.5 transition-colors {viewMode === 'table' ? 'bg-blue-50 text-blue-600 shadow-sm' : 'text-slate-400 hover:text-slate-600'}"
+						onclick={() => viewMode = 'table'}
+					>
+						<List size={18} strokeWidth={2.5} />
+					</button>
+				</div>
 			</div>
 		</div>
 

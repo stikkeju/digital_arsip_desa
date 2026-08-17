@@ -8,17 +8,42 @@
 	let viewMode: 'card' | 'table' = $state('card');
 	let searchQuery = $state('');
 
+	let filterMonth = $state('');
+	let filterYear = $state('');
+	let filterIndex = $state('');
+
+	// Extract unique no_index
+	let uniqueIndices = $derived(
+		Array.from(new Set(arsipKeluar.map(s => s.no_index).filter(Boolean))).sort()
+	);
+
 	// Client-side search filtering
 	let filteredArsip = $derived(
 		arsipKeluar.filter((surat) => {
-			if (!searchQuery) return true;
-			const q = searchQuery.toLowerCase();
-			return (
-				(surat.no_register && surat.no_register.toLowerCase().includes(q)) ||
-				(surat.tujuan && surat.tujuan.toLowerCase().includes(q)) ||
-				(surat.perihal && surat.perihal.toLowerCase().includes(q)) ||
-				(surat.keterangan && surat.keterangan.toLowerCase().includes(q))
-			);
+			// Date filter logic
+			if (filterMonth || filterYear) {
+				if (!surat.tanggal_pembuatan) return false;
+				const d = new Date(surat.tanggal_pembuatan);
+				if (filterYear && d.getFullYear().toString() !== filterYear) return false;
+				if (filterMonth && (d.getMonth() + 1).toString() !== filterMonth) return false;
+			}
+			
+			// Index filter logic
+			if (filterIndex && surat.no_index !== filterIndex) return false;
+
+			// Smart Search logic
+			if (!searchQuery.trim()) return true;
+			
+			const terms = searchQuery.toLowerCase().split(' ').filter(t => t);
+			const fullText = [
+				surat.no_register || '',
+				surat.no_index || '',
+				surat.tujuan || '',
+				surat.perihal || '',
+				surat.keterangan || ''
+			].join(' ').toLowerCase();
+
+			return terms.every(term => fullText.includes(term));
 		})
 	);
 
@@ -42,8 +67,8 @@
 
 	<div class="space-y-4 p-4">
 		<!-- Actions Bar -->
-		<div class="flex items-center gap-2">
-			<div class="relative flex-1">
+		<div class="flex flex-col md:flex-row items-center gap-2">
+			<div class="relative flex-1 w-full">
 				<Search class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
 				<input 
 					type="text" 
@@ -53,19 +78,51 @@
 				/>
 			</div>
 			
-			<div class="flex rounded-xl border border-slate-200 bg-white p-1 shadow-sm">
-				<button 
-					class="rounded-lg p-1.5 transition-colors {viewMode === 'card' ? 'bg-primary-50 text-primary-600 shadow-sm' : 'text-slate-400 hover:text-slate-600'}"
-					onclick={() => viewMode = 'card'}
-				>
-					<LayoutGrid size={18} strokeWidth={2.5} />
-				</button>
-				<button 
-					class="rounded-lg p-1.5 transition-colors {viewMode === 'table' ? 'bg-primary-50 text-primary-600 shadow-sm' : 'text-slate-400 hover:text-slate-600'}"
-					onclick={() => viewMode = 'table'}
-				>
-					<List size={18} strokeWidth={2.5} />
-				</button>
+			<div class="flex flex-wrap sm:flex-nowrap gap-2 w-full md:w-auto">
+				<select bind:value={filterIndex} class="rounded-xl border border-slate-200 bg-white py-2 px-3 text-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 flex-1 sm:flex-none">
+					<option value="">Semua Index</option>
+					{#each uniqueIndices as idx}
+						<option value={idx}>{idx}</option>
+					{/each}
+				</select>
+
+				<select bind:value={filterMonth} class="rounded-xl border border-slate-200 bg-white py-2 px-3 text-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 flex-1 sm:flex-none">
+					<option value="">Bulan</option>
+					<option value="1">Jan</option>
+					<option value="2">Feb</option>
+					<option value="3">Mar</option>
+					<option value="4">Apr</option>
+					<option value="5">Mei</option>
+					<option value="6">Jun</option>
+					<option value="7">Jul</option>
+					<option value="8">Agu</option>
+					<option value="9">Sep</option>
+					<option value="10">Okt</option>
+					<option value="11">Nov</option>
+					<option value="12">Des</option>
+				</select>
+
+				<select bind:value={filterYear} class="rounded-xl border border-slate-200 bg-white py-2 px-3 text-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 flex-1 sm:flex-none">
+					<option value="">Tahun</option>
+					{#each Array.from({length: 10}, (_, i) => new Date().getFullYear() - i) as year}
+						<option value={year.toString()}>{year}</option>
+					{/each}
+				</select>
+
+				<div class="flex rounded-xl border border-slate-200 bg-white p-1 shadow-sm shrink-0">
+					<button 
+						class="rounded-lg p-1.5 transition-colors {viewMode === 'card' ? 'bg-primary-50 text-primary-600 shadow-sm' : 'text-slate-400 hover:text-slate-600'}"
+						onclick={() => viewMode = 'card'}
+					>
+						<LayoutGrid size={18} strokeWidth={2.5} />
+					</button>
+					<button 
+						class="rounded-lg p-1.5 transition-colors {viewMode === 'table' ? 'bg-primary-50 text-primary-600 shadow-sm' : 'text-slate-400 hover:text-slate-600'}"
+						onclick={() => viewMode = 'table'}
+					>
+						<List size={18} strokeWidth={2.5} />
+					</button>
+				</div>
 			</div>
 		</div>
 
