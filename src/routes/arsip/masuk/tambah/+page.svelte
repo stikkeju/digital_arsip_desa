@@ -19,6 +19,17 @@
 	let customFields = $state<{ key: string; value: string }[]>([]);
 
 	let newFieldKey = $state('');
+	
+	let selectedFile = $state<File | null>(null);
+
+	function handleFileChange(e: Event) {
+		const target = e.target as HTMLInputElement;
+		if (target.files && target.files.length > 0) {
+			selectedFile = target.files[0];
+		} else {
+			selectedFile = null;
+		}
+	}
 
 	function addCustomField() {
 		if (newFieldKey.trim()) {
@@ -35,6 +46,46 @@
 		e.preventDefault();
 		isLoading = true;
 
+		let finalFileUrl = formData.file_url;
+
+		// 1. Upload file if selected
+		if (selectedFile) {
+			try {
+				const uploadData = new FormData();
+				uploadData.append('file', selectedFile);
+				uploadData.append('folderType', 'Surat Masuk');
+				// Gunakan tanggal hari ini jika tanggal_terima kosong
+				const tgl = formData.tanggal_terima || new Date().toISOString().split('T')[0];
+				uploadData.append('tanggal', tgl);
+				
+				// Standardisasi nama file: {no_register}_{no_index}_{tanggal}_{perihal}_{keterangan}
+				// Ekstrak no_index jika ada dari customFields, tapi untuk surat masuk kita belum punya no_index,
+				// jadi gunakan 'Masuk' sebagai index placeholder jika tidak ada.
+				const noIndex = 'Masuk';
+				const safePerihal = formData.perihal.replace(/[^a-zA-Z0-9]/g, '_').substring(0, 20);
+				const safeKet = formData.keterangan.replace(/[^a-zA-Z0-9]/g, '_').substring(0, 15);
+				const filename = `${formData.no_register}_${noIndex}_${tgl}_${safePerihal}_${safeKet}`.replace(/_+/g, '_');
+				
+				uploadData.append('filename', filename);
+
+				const res = await fetch('/api/upload', {
+					method: 'POST',
+					body: uploadData
+				});
+
+				const result = await res.json();
+				if (!res.ok || result.error) {
+					throw new Error(result.error || 'Gagal mengunggah file');
+				}
+
+				finalFileUrl = result.url;
+			} catch (err: any) {
+				alert('Gagal mengunggah dokumen: ' + err.message);
+				isLoading = false;
+				return;
+			}
+		}
+
 		// Convert custom fields array into JSON object
 		const custom_fields_obj = customFields.reduce((acc, curr) => {
 			if (curr.key) acc[curr.key] = curr.value;
@@ -43,7 +94,7 @@
 
 		const { error } = await supabase
 			.from('arsip_surat_masuk')
-			.insert([{ ...formData, custom_fields: custom_fields_obj }]);
+			.insert([{ ...formData, file_url: finalFileUrl, custom_fields: custom_fields_obj }]);
 
 		isLoading = false;
 
@@ -103,9 +154,9 @@
 			<div class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm space-y-4">
 				<h2 class="font-semibold text-slate-800 border-b border-slate-100 pb-2">Dokumen Digital</h2>
 				<div class="space-y-1">
-					<label class="text-sm font-medium text-slate-700" for="file_url">Tautan (Link) Google Drive</label>
-					<input type="url" id="file_url" bind:value={formData.file_url} placeholder="https://drive.google.com/..." class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-primary-500 focus:ring-1 focus:ring-primary-500 outline-none" />
-					<p class="text-xs text-slate-500 mt-1">Kosongkan jika dokumen fisik belum didigitalisasi.</p>
+					<label class="text-sm font-medium text-slate-700" for="file_upload">Unggah Foto / PDF Surat</label>
+					<input type="file" id="file_upload" accept="image/jpeg, image/png, application/pdf" onchange={handleFileChange} class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-primary-500 focus:ring-1 focus:ring-primary-500 outline-none file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary-50 file:text-primary-700 hover:file:bg-primary-100" />
+					<p class="text-xs text-slate-500 mt-1">Kosongkan jika dokumen fisik belum didigitalisasi. Gambar resolusi tinggi akan otomatis dikecilkan (kompresi) dan diubah menjadi PDF.</p>
 				</div>
 			</div>
 
