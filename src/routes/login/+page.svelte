@@ -44,10 +44,10 @@
 				class="mx-auto mb-6 h-20 w-auto drop-shadow-md"
 				onerror={(e) => ((e.currentTarget as HTMLElement).style.display = 'none')}
 			/>
-			<h1 class="mb-1 text-2xl font-black tracking-tight text-slate-900">
-				Sistem Informasi Kearsipan
+			<h1 class="mb-1 text-2xl font-black tracking-tight text-slate-900 leading-tight">
+				Sistem Informasi Digitalisasi Arsip Desa
 			</h1>
-			<p class="text-sm font-medium text-slate-500">Pemerintah Desa Klutuk</p>
+			<p class="text-sm font-medium text-slate-500">Pemerintah Desa Klutuk, Kec. Mekar Baru, Kab. Tangerang</p>
 		</div>
 
 		<form onsubmit={handleLogin} class="space-y-5">
@@ -103,9 +103,13 @@
 			</div>
 		</form>
 
-		<div class="mt-8 text-center">
-			<p class="text-[11px] font-medium text-slate-400">
-				© 2026 Pemerintah Desa Klutuk<br />Kabupaten Tangerang
+		<div class="mt-8 border-t border-slate-200/50 pt-6">
+			<div class="flex items-center justify-center gap-4 mb-3">
+				<img src="/images/logo-uniba.jpg" alt="Logo Uniba" class="h-10 w-auto rounded-full object-contain" />
+				<img src="/images/logo-kkm.jpg" alt="Logo KKM 96" class="h-10 w-auto rounded-full object-contain" />
+			</div>
+			<p class="text-center text-[10px] font-semibold text-slate-400 uppercase tracking-wider">
+				Dibuat oleh: Tim KKM Kelompok 96 <br/> Universitas Bina Bangsa Tahun 2026
 			</p>
 		</div>
 	</div>

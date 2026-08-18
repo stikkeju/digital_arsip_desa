@@ -70,8 +70,8 @@
 <div class="space-y-6 p-4 pb-8">
 	<!-- Hero Section -->
 	<section class="rounded-2xl bg-gradient-to-br from-primary-600 to-primary-700 p-6 text-white shadow-lg shadow-primary-600/20">
-		<h2 class="text-2xl font-bold">Dashboard Statistik</h2>
-		<p class="mt-2 text-primary-50 text-sm leading-relaxed">Pantau lalu lintas dan rekapitulasi persuratan desa Anda.</p>
+		<h2 class="text-2xl font-bold leading-snug">Selamat Datang di<br/>Sistem Informasi Arsip Digital</h2>
+		<p class="mt-2 text-primary-50 text-sm leading-relaxed opacity-90">Desa Klutuk, Kec. Mekar Baru, Kab. Tangerang</p>
 	</section>
 
 	<!-- Filter Action -->

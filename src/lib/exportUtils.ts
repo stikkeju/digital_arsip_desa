@@ -122,7 +122,16 @@ export async function downloadPDF(title: string, periode: string, columns: {head
 			columnStyles: {
 				0: { halign: 'center', cellWidth: 10 }, // Kolom No
 			},
-			margin: { left: 15, right: 15 }
+			margin: { left: 15, right: 15 },
+			didDrawPage: function (data: any) {
+				// KKM Footer on every page
+				const str = "Di-generate oleh Sistem Informasi Arsip Digital - Karya Tim KKM 96 Uniba 2026";
+				doc.setFontSize(8);
+				doc.setFont('helvetica', 'italic');
+				doc.setTextColor(150, 150, 150);
+				doc.text(str, 15, doc.internal.pageSize.height - 10);
+				doc.setTextColor(0, 0, 0); // reset
+			}
 		});
 
 		// Calculate Y position after table
