@@ -141,9 +141,11 @@
 					{:else}
 						<ul class="divide-y divide-slate-100">
 							{#each kategoriMasuk as kat}
-								<li class="flex items-center justify-between px-4 py-3 hover:bg-slate-50 transition-colors">
-									<span class="text-sm font-medium text-slate-700 truncate pr-4">{kat.name}</span>
-									<span class="inline-flex items-center justify-center min-w-8 h-6 px-2 text-xs font-bold text-blue-700 bg-blue-100 rounded-full">{kat.count}</span>
+								<li>
+									<a href="/arsip/masuk?q={encodeURIComponent(kat.name)}&time={timeFilter}" class="flex items-center justify-between px-4 py-3 hover:bg-slate-50 transition-colors cursor-pointer">
+										<span class="text-sm font-medium text-slate-700 truncate pr-4">{kat.name}</span>
+										<span class="inline-flex items-center justify-center min-w-8 h-6 px-2 text-xs font-bold text-blue-700 bg-blue-100 rounded-full">{kat.count}</span>
+									</a>
 								</li>
 							{/each}
 						</ul>
@@ -165,9 +167,11 @@
 					{:else}
 						<ul class="divide-y divide-slate-100">
 							{#each kategoriKeluar as kat}
-								<li class="flex items-center justify-between px-4 py-3 hover:bg-slate-50 transition-colors">
-									<span class="text-sm font-medium text-slate-700 truncate pr-4">{kat.name}</span>
-									<span class="inline-flex items-center justify-center min-w-8 h-6 px-2 text-xs font-bold text-green-700 bg-green-100 rounded-full">{kat.count}</span>
+								<li>
+									<a href="/arsip/keluar?q={encodeURIComponent(kat.name)}&time={timeFilter}" class="flex items-center justify-between px-4 py-3 hover:bg-slate-50 transition-colors cursor-pointer">
+										<span class="text-sm font-medium text-slate-700 truncate pr-4">{kat.name}</span>
+										<span class="inline-flex items-center justify-center min-w-8 h-6 px-2 text-xs font-bold text-green-700 bg-green-100 rounded-full">{kat.count}</span>
+									</a>
 								</li>
 							{/each}
 						</ul>

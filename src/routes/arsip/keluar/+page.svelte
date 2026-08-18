@@ -1,8 +1,9 @@
 <script lang="ts">
-	import { Search, Filter, Plus, Send, LayoutGrid, List, FileBadge, ExternalLink, Download, FileType2 } from '@lucide/svelte';
+	import { Search, Filter, Plus, Send, LayoutGrid, List, FileBadge, ExternalLink, Download, FileType2, XCircle } from '@lucide/svelte';
 	import { goto } from '$app/navigation';
 	import { downloadExcel, downloadPDF } from '$lib/exportUtils';
 	import { auth } from '$lib/stores/auth.svelte.ts';
+	import { page } from '$app/stores';
 
 	let { data } = $props();
 	let arsipKeluar = $derived(data.arsipKeluar || []);
@@ -14,6 +15,45 @@
 	let filterMonth = $state('');
 	let filterYear = $state('');
 	let filterIndex = $state('');
+
+	let urlTimeFilter = $derived($page.url.searchParams.get('time') || '');
+	let isDashboardFilterActive = $derived(!!$page.url.searchParams.get('time') || !!$page.url.searchParams.get('q'));
+
+	$effect(() => {
+		const q = $page.url.searchParams.get('q');
+		if (q && !searchQuery) {
+			searchQuery = q;
+		}
+	});
+
+	function clearDashboardFilter() {
+		searchQuery = '';
+		goto('/arsip/keluar', { replaceState: true });
+	}
+
+	function isDateInRange(dateStr: string | null, filter: string) {
+		if (!dateStr) return false;
+		if (filter === 'all' || !filter) return true;
+		
+		const date = new Date(dateStr);
+		const today = new Date();
+		
+		if (filter === 'today') {
+			return date.toDateString() === today.toDateString();
+		}
+		if (filter === '7days') {
+			const sevenDaysAgo = new Date();
+			sevenDaysAgo.setDate(today.getDate() - 7);
+			return date >= sevenDaysAgo && date <= today;
+		}
+		if (filter === 'month') {
+			return date.getMonth() === today.getMonth() && date.getFullYear() === today.getFullYear();
+		}
+		if (filter === 'year') {
+			return date.getFullYear() === today.getFullYear();
+		}
+		return true;
+	}
 
 	// Extract unique no_index
 	let uniqueIndices = $derived(
@@ -63,8 +103,11 @@
 	// Client-side search filtering
 	let filteredArsip = $derived(
 		arsipKeluar.filter((surat) => {
-			// Date filter logic
-			if (filterMonth || filterYear) {
+			// URL parameter Time range has highest priority
+			if (urlTimeFilter && urlTimeFilter !== 'all') {
+				if (!isDateInRange(surat.tanggal_pembuatan, urlTimeFilter)) return false;
+			} else if (filterMonth || filterYear) {
+				// Fallback to manual dropdown filters
 				if (!surat.tanggal_pembuatan) return false;
 				const d = new Date(surat.tanggal_pembuatan);
 				if (filterYear && d.getFullYear().toString() !== filterYear) return false;
@@ -112,6 +155,19 @@
 	</header>
 
 	<div class="space-y-4 p-4">
+		{#if isDashboardFilterActive}
+			<div class="bg-indigo-50 border border-indigo-100 rounded-xl p-3 flex items-center justify-between shadow-sm animate-in fade-in">
+				<div class="text-sm text-indigo-800 font-medium flex items-center gap-2">
+					<Filter size={16} />
+					Menampilkan arsip berdasarkan filter dari Dashboard
+				</div>
+				<button onclick={clearDashboardFilter} class="text-indigo-600 hover:text-indigo-800 flex items-center gap-1 text-xs font-bold px-2 py-1 bg-indigo-100/50 hover:bg-indigo-100 rounded-lg transition-colors">
+					<XCircle size={14} />
+					Hapus Filter
+				</button>
+			</div>
+		{/if}
+
 		<!-- Actions Bar -->
 		<div class="flex flex-col gap-3">
 			<div class="flex flex-col lg:flex-row items-center gap-2">
