@@ -24,6 +24,41 @@
 	let newFieldKey = $state('');
 
 	let selectedFiles = $state<File[]>([]);
+	let isScanning = $state(false);
+
+	async function handleAutoFill() {
+		if (selectedFiles.length === 0) return;
+		
+		isScanning = true;
+		try {
+			const ocrData = new FormData();
+			ocrData.append('files', selectedFiles[0]); // Kirim foto pertama saja
+			ocrData.append('formType', 'keluar');
+
+			const res = await fetch('/api/ocr', {
+				method: 'POST',
+				body: ocrData
+			});
+
+			const result = await res.json();
+			if (!res.ok || result.error) {
+				throw new Error(result.error || 'Gagal memproses AI OCR');
+			}
+
+			if (result.data) {
+				if (result.data.nomor_register) formData.no_register = result.data.nomor_register;
+				if (result.data.nomor_index) formData.no_index = result.data.nomor_index;
+				if (result.data.perihal) formData.perihal = result.data.perihal;
+				if (result.data.tujuan) formData.tujuan = result.data.tujuan;
+				if (result.data.nama_pemohon) formData.keterangan = result.data.nama_pemohon;
+				alert('✨ Form berhasil diisi otomatis oleh AI!');
+			}
+		} catch (err: any) {
+			alert('AI gagal membaca dokumen: ' + err.message);
+		} finally {
+			isScanning = false;
+		}
+	}
 
 	function handleFileChange(e: Event) {
 		const target = e.target as HTMLInputElement;
@@ -177,8 +212,17 @@
 								{/each}
 							</ul>
 						</div>
+
+						<button type="button" onclick={handleAutoFill} disabled={isScanning} class="mt-3 w-full flex items-center justify-center gap-2 rounded-lg bg-indigo-600 py-2.5 font-semibold text-white shadow-sm hover:bg-indigo-700 transition-colors disabled:opacity-70">
+							{#if isScanning}
+								<Loader2 class="animate-spin" size={16} />
+								Memindai Dokumen...
+							{:else}
+								✨ Pindai & Isi Form Otomatis
+							{/if}
+						</button>
 					{/if}
-					<p class="text-xs text-slate-500 mt-1">Kosongkan jika dokumen fisik belum didigitalisasi. Anda bisa memilih lebih dari satu gambar sekaligus untuk dijadikan 1 dokumen PDF utuh.</p>
+					<p class="text-xs text-slate-500 mt-3 pt-2 border-t border-slate-100">Kosongkan jika dokumen fisik belum didigitalisasi. Anda bisa memilih lebih dari satu gambar sekaligus untuk dijadikan 1 dokumen PDF utuh.</p>
 				</div>
 			</div>
 
