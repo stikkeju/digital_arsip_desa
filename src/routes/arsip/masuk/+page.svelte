@@ -1,6 +1,8 @@
 <script lang="ts">
-	import { Search, Filter, Plus, FileText, LayoutGrid, List, FileBadge, ExternalLink } from '@lucide/svelte';
+	import { Search, Filter, Plus, FileText, LayoutGrid, List, FileBadge, ExternalLink, Download, Printer } from '@lucide/svelte';
 	import { goto } from '$app/navigation';
+	import PrintReport from '$lib/components/PrintReport.svelte';
+	import { downloadExcel } from '$lib/exportUtils';
 
 	let { data } = $props();
 	let arsipMasuk = $derived(data.arsipMasuk || []);
@@ -11,6 +13,30 @@
 
 	let filterMonth = $state('');
 	let filterYear = $state('');
+
+	let isPrinting = $state(false);
+
+	function handleExport() {
+		const exportData = filteredArsip.map((s, i) => ({
+			'No': i + 1,
+			'Nomor Register': s.no_register,
+			'Nomor Surat Asli': s.no_surat,
+			'Tanggal Terima': formatDate(s.tanggal_terima),
+			'Pengirim': s.pengirim,
+			'Perihal': s.perihal,
+			'Keterangan': s.keterangan || ''
+		}));
+		const title = `Surat_Masuk_${filterMonth || 'SemuaBulan'}_${filterYear || 'SemuaTahun'}`;
+		downloadExcel(exportData, title, 'Surat Masuk');
+	}
+
+	function handlePrint() {
+		isPrinting = true;
+		setTimeout(() => {
+			window.print();
+			isPrinting = false;
+		}, 300);
+	}
 
 	// Client-side search filtering
 	let filteredArsip = $derived(
@@ -106,6 +132,16 @@
 						onclick={() => viewMode = 'table'}
 					>
 						<List size={18} strokeWidth={2.5} />
+					</button>
+				</div>
+				<div class="flex gap-2 shrink-0">
+					<button onclick={handleExport} class="flex items-center gap-2 rounded-xl bg-green-50 px-3 py-2 text-sm font-semibold text-green-700 transition-colors hover:bg-green-100">
+						<Download size={16} />
+						<span class="hidden sm:inline">Excel</span>
+					</button>
+					<button onclick={handlePrint} class="flex items-center gap-2 rounded-xl bg-slate-800 px-3 py-2 text-sm font-semibold text-white transition-colors hover:bg-slate-700">
+						<Printer size={16} />
+						<span class="hidden sm:inline">Cetak</span>
 					</button>
 				</div>
 			</div>
@@ -224,9 +260,30 @@
 			{/if}
 		{/if}
 	</div>
-
-	<!-- FAB -->
-	<a href="/arsip/masuk/tambah" class="fixed bottom-20 right-4 flex h-14 w-14 items-center justify-center rounded-full bg-blue-600 text-white shadow-xl shadow-blue-600/30 transition-transform active:scale-95 hover:bg-blue-700">
-		<Plus size={28} strokeWidth={2.5} />
-	</a>
+	
+	<!-- FAB for mobile -->
+	<button 
+		class="fixed bottom-6 right-6 flex h-14 w-14 items-center justify-center rounded-full bg-blue-600 text-white shadow-lg shadow-blue-600/30 transition-transform hover:scale-105 active:scale-95 md:hidden z-10"
+		onclick={() => goto('/arsip/masuk/tambah')}
+	>
+		<Plus size={24} strokeWidth={2.5} />
+	</button>
 </div>
+
+<PrintReport 
+	title="BUKU AGENDA SURAT MASUK"
+	periode={filterMonth || filterYear ? `${filterMonth ? 'Bulan ' + filterMonth : ''} ${filterYear || ''}`.trim() : 'Semua Waktu'}
+	columns={[
+		{ key: 'no_register', label: 'Nomor Register' },
+		{ key: 'no_surat', label: 'Nomor Surat' },
+		{ key: 'tanggal_terima', label: 'Tanggal Terima' },
+		{ key: 'pengirim', label: 'Pengirim' },
+		{ key: 'perihal', label: 'Perihal' },
+		{ key: 'keterangan', label: 'Keterangan' }
+	]}
+	data={filteredArsip.map(s => ({
+		...s,
+		tanggal_terima: formatDate(s.tanggal_terima)
+	}))}
+	{isPrinting}
+/>
