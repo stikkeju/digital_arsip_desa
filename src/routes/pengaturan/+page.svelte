@@ -180,20 +180,17 @@
 
 			<!-- Tentang Aplikasi -->
 			<div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-				<h3 class="mb-4 text-sm font-bold tracking-tight text-slate-800">Tentang Aplikasi</h3>
-				<div class="flex flex-col items-center justify-center space-y-4 rounded-xl bg-slate-50 p-6 text-center border border-slate-100">
-					<div class="flex items-center justify-center gap-4">
-						<img src="/images/logo-uniba.jpg" alt="Logo Uniba" class="h-14 w-auto rounded-full object-contain shadow-sm" />
-						<img src="/images/logo-kkm.jpg" alt="Logo KKM 96" class="h-14 w-auto rounded-full object-contain shadow-sm" />
-					</div>
+				<h3 class="mb-3 text-sm font-bold tracking-tight text-slate-800">Tentang Aplikasi</h3>
+				<div class="rounded-xl bg-slate-50 p-4 border border-slate-100 space-y-3">
 					<div>
 						<h4 class="font-bold text-slate-800 text-sm">Sistem Informasi Digitalisasi Arsip Desa</h4>
-						<p class="text-xs text-slate-500 mt-1">Pemerintah Desa Klutuk, Kec. Mekar Baru, Kab. Tangerang</p>
+						<p class="text-xs text-slate-500 mt-0.5">Pemerintah Desa Klutuk, Kec. Mekar Baru, Kab. Tangerang</p>
 					</div>
-					<div class="w-12 h-0.5 bg-slate-200 rounded-full"></div>
+					<div class="h-px bg-slate-200 w-full"></div>
 					<div>
-						<p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider leading-relaxed">
-							Dibuat oleh: <br/> Tim KKM Kelompok 96 <br/> Universitas Bina Bangsa Tahun 2026
+						<p class="text-xs font-semibold text-slate-600">
+							Dibuat oleh Tim KKM Kelompok 96 <br/> 
+							<span class="text-slate-500 font-medium">Universitas Bina Bangsa (Tahun 2026)</span>
 						</p>
 					</div>
 				</div>
