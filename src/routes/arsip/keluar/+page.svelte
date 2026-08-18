@@ -171,11 +171,11 @@
 				<div class="flex gap-2 shrink-0 w-full sm:w-auto mt-2 sm:mt-0 justify-end">
 					<button onclick={handleExport} class="flex items-center gap-2 rounded-xl bg-green-50 px-3 py-2 text-sm font-semibold text-green-700 transition-colors hover:bg-green-100">
 						<Download size={16} />
-						<span class="hidden sm:inline">Excel</span>
+						<span>Excel</span>
 					</button>
 					<button onclick={handlePDF} class="flex items-center gap-2 rounded-xl bg-red-50 px-3 py-2 text-sm font-semibold text-red-700 transition-colors hover:bg-red-100">
 						<FileType2 size={16} />
-						<span class="hidden sm:inline">PDF</span>
+						<span>PDF</span>
 					</button>
 				</div>
 			</div>
