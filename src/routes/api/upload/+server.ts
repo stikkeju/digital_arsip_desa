@@ -42,7 +42,7 @@ async function getOrCreateFolder(drive: any, parentId: string, folderName: strin
 	return createRes.data.id;
 }
 
-async function processMultipleToPdf(files: File[]): Promise<Buffer> {
+async function processMultipleToPdf(files: File[], applyScannerFilter: boolean): Promise<Buffer> {
 	if (files.length === 1 && files[0].type === 'application/pdf') {
 		const arrayBuffer = await files[0].arrayBuffer();
 		return Buffer.from(arrayBuffer);
@@ -60,11 +60,16 @@ async function processMultipleToPdf(files: File[]): Promise<Buffer> {
 			const copiedPages = await finalPdfDoc.copyPages(donorPdfDoc, donorPdfDoc.getPageIndices());
 			copiedPages.forEach((page) => finalPdfDoc.addPage(page));
 		} else if (mimeType.startsWith('image/')) {
-			// Kompresi resolusi lebar maksimal 1500px dan ubah ke JPEG agar hemat size
-			const compressedImageBuffer = await sharp(fileBuffer)
-				.resize({ width: 1500, withoutEnlargement: true })
-				.jpeg({ quality: 80 })
-				.toBuffer();
+			let sharpInstance = sharp(fileBuffer).resize({ width: 1500, withoutEnlargement: true });
+			
+			if (applyScannerFilter) {
+				sharpInstance = sharpInstance
+					.grayscale()
+					.normalize()
+					.linear(1.5, -0.2); // Tingkatkan kontras ekstrim
+			}
+
+			const compressedImageBuffer = await sharpInstance.jpeg({ quality: 80 }).toBuffer();
 			
 			const image = await finalPdfDoc.embedJpg(compressedImageBuffer);
 			const page = finalPdfDoc.addPage([image.width, image.height]);
@@ -90,6 +95,7 @@ export async function POST({ request }) {
 		const folderType = formData.get('folderType') as string; // 'Surat Masuk' | 'Surat Keluar'
 		const tanggal = formData.get('tanggal') as string; // 'YYYY-MM-DD'
 		const filename = formData.get('filename') as string;
+		const applyScannerFilter = formData.get('applyScannerFilter') === 'true';
 
 		if (!files || files.length === 0 || !folderType || !tanggal || !filename) {
 			return json({ error: 'Data form tidak lengkap (files, folderType, tanggal, filename)' }, { status: 400 });
@@ -100,7 +106,7 @@ export async function POST({ request }) {
 		}
 
 		// 1. Pemrosesan & Kompresi PDF Gabungan
-		const finalPdfBuffer = await processMultipleToPdf(files);
+		const finalPdfBuffer = await processMultipleToPdf(files, applyScannerFilter);
 
 		// 2. Autentikasi Google Drive
 		const auth = getDriveAuth();

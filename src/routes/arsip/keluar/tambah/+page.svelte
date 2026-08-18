@@ -22,6 +22,7 @@
 	let customFields = $state<{ key: string; value: string }[]>([]);
 
 	let newFieldKey = $state('');
+	let applyScannerFilter = $state(true);
 
 	let selectedFiles = $state<File[]>([]);
 
@@ -57,6 +58,7 @@
 				const uploadData = new FormData();
 				selectedFiles.forEach(f => uploadData.append('files', f));
 				uploadData.append('folderType', 'Surat Keluar');
+				uploadData.append('applyScannerFilter', applyScannerFilter.toString());
 				// Gunakan tanggal hari ini jika tanggal_pembuatan kosong
 				const tgl = formData.tanggal_pembuatan || new Date().toISOString().split('T')[0];
 				uploadData.append('tanggal', tgl);
@@ -178,7 +180,18 @@
 							</ul>
 						</div>
 					{/if}
-					<p class="text-xs text-slate-500 mt-1">Kosongkan jika dokumen fisik belum didigitalisasi. Anda bisa memilih lebih dari satu gambar sekaligus untuk dijadikan 1 dokumen PDF utuh.</p>
+					
+					<label class="flex items-start gap-2 mt-3 cursor-pointer group">
+						<div class="flex h-5 items-center">
+							<input type="checkbox" bind:checked={applyScannerFilter} class="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500" />
+						</div>
+						<div class="text-xs">
+							<span class="font-medium text-slate-700 group-hover:text-slate-900 transition-colors">Terapkan Filter Scanner</span>
+							<p class="text-slate-500 mt-0.5">Otomatis mengubah foto menjadi hitam-putih dan menghilangkan bayangan gelap agar teks terlihat seperti hasil fotokopi. (Kosongkan jika ingin mengunggah gambar asli berwarna).</p>
+						</div>
+					</label>
+					
+					<p class="text-xs text-slate-500 mt-3 pt-2 border-t border-slate-100">Kosongkan jika dokumen fisik belum didigitalisasi. Anda bisa memilih lebih dari satu gambar sekaligus untuk dijadikan 1 dokumen PDF utuh.</p>
 				</div>
 			</div>
 
