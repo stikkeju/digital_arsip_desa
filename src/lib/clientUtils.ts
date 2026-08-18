@@ -8,10 +8,14 @@ import imageCompression from 'browser-image-compression';
  * @returns Promise that resolves to an array of compressed files
  */
 export async function compressImageFiles(files: File[]): Promise<File[]> {
+    // Dinamis: Targetkan total ukuran semua gambar maksimal ~3MB agar sangat aman untuk Vercel (Limit 4.5MB).
+    // Misal: 1 gambar = 3MB. Jika 5 gambar = 0.6MB per gambar. (Minimal 0.3MB agar masih bisa dibaca).
+    const dynamicMaxSizeMB = Math.max(0.3, 3 / files.length);
+
     const options = {
-        maxSizeMB: 3,             // Batas maksimum 3MB
-        maxWidthOrHeight: 1920,   // Skala proporsional max 1920px (1080p standar)
-        useWebWorker: true,       // Jalan di background thread agar UI tidak beku
+        maxSizeMB: dynamicMaxSizeMB, 
+        maxWidthOrHeight: 1500,   // Resolusi lebar 1500px sudah sangat tajam untuk kertas A4/dokumen
+        useWebWorker: true,
         alwaysKeepResolution: false
     };
 
