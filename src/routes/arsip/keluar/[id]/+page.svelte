@@ -545,6 +545,9 @@
 						satu gambar sekaligus untuk digabungkan menjadi 1 dokumen PDF utuh.
 					</p>
 					{/if}
+					{#if !auth.isOperator && !arsip.file_url}
+					<p class="text-sm text-slate-500 italic py-2">Belum ada dokumen digital yang dilampirkan pada arsip ini.</p>
+					{/if}
 				</div>
 			</div>
 

@@ -1,10 +1,41 @@
 <script lang="ts">
 	import { auth } from '$lib/stores/auth.svelte.ts';
-	import { LogOut, User, Shield, KeyRound, ArrowLeft } from '@lucide/svelte';
+	import { LogOut, User, Shield, KeyRound, ArrowLeft, Loader2, X } from '@lucide/svelte';
 	import { goto } from '$app/navigation';
 	import { ui } from '$lib/stores/ui.svelte.ts';
+	import { supabase } from '$lib/supabaseClient';
 
 	let isLoggingOut = $state(false);
+	let isChangingPassword = $state(false);
+	let showPasswordForm = $state(false);
+	let newPassword = $state('');
+	let confirmPassword = $state('');
+
+	async function handleUpdatePassword(e: Event) {
+		e.preventDefault();
+		
+		if (newPassword.length < 6) {
+			ui.addToast('Kata sandi minimal 6 karakter', 'error');
+			return;
+		}
+		if (newPassword !== confirmPassword) {
+			ui.addToast('Konfirmasi kata sandi tidak cocok', 'error');
+			return;
+		}
+
+		isChangingPassword = true;
+		const { error } = await supabase.auth.updateUser({ password: newPassword });
+		isChangingPassword = false;
+
+		if (error) {
+			ui.addToast('Gagal mengubah kata sandi: ' + error.message, 'error');
+		} else {
+			ui.addToast('Kata sandi berhasil diubah!', 'success');
+			showPasswordForm = false;
+			newPassword = '';
+			confirmPassword = '';
+		}
+	}
 
 	function handleLogout() {
 		ui.showConfirm({
@@ -69,19 +100,80 @@
 				</div>
 			</div>
 
-			<!-- System Settings (Placeholder) -->
+			<!-- System Settings -->
 			<div class="rounded-2xl border border-slate-200 bg-white p-2 shadow-sm">
 				<div class="p-4">
-					<h3 class="mb-4 text-sm font-bold text-slate-900">Preferensi Sistem</h3>
-					<div class="space-y-2">
-						<button class="flex w-full items-center justify-between rounded-xl px-4 py-3 text-left transition-colors hover:bg-slate-50">
-							<div class="flex items-center gap-3 text-slate-700">
-								<KeyRound size={20} class="text-slate-400" />
-								<span class="font-medium">Ubah Kata Sandi</span>
+					<h3 class="mb-4 text-sm font-bold text-slate-900">Keamanan</h3>
+					
+					{#if !showPasswordForm}
+						<div class="space-y-2">
+							<button 
+								onclick={() => (showPasswordForm = true)}
+								class="flex w-full items-center justify-between rounded-xl px-4 py-3 text-left transition-colors hover:bg-slate-50"
+							>
+								<div class="flex items-center gap-3 text-slate-700">
+									<KeyRound size={20} class="text-slate-400" />
+									<span class="font-medium">Ubah Kata Sandi</span>
+								</div>
+								<span class="text-xs font-medium text-blue-600 bg-blue-50 px-2 py-1 rounded-md">Ubah</span>
+							</button>
+						</div>
+					{:else}
+						<form onsubmit={handleUpdatePassword} class="animate-in fade-in slide-in-from-top-2 rounded-xl bg-slate-50 p-4 border border-slate-100">
+							<div class="flex items-center justify-between mb-4">
+								<h4 class="text-sm font-semibold text-slate-800">Form Ubah Kata Sandi</h4>
+								<button 
+									type="button" 
+									onclick={() => { showPasswordForm = false; newPassword = ''; confirmPassword = ''; }}
+									class="p-1 text-slate-400 hover:text-slate-600 transition-colors"
+								>
+									<X size={16} />
+								</button>
 							</div>
-							<span class="text-xs font-medium text-slate-400">Segera hadir</span>
-						</button>
-					</div>
+
+							<div class="space-y-3">
+								<div class="space-y-1">
+									<label class="text-xs font-medium text-slate-600" for="new_password">Kata Sandi Baru</label>
+									<input
+										type="password"
+										id="new_password"
+										bind:value={newPassword}
+										minlength="6"
+										placeholder="Minimal 6 karakter"
+										required
+										class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+									/>
+								</div>
+								<div class="space-y-1">
+									<label class="text-xs font-medium text-slate-600" for="confirm_password">Konfirmasi Kata Sandi</label>
+									<input
+										type="password"
+										id="confirm_password"
+										bind:value={confirmPassword}
+										minlength="6"
+										placeholder="Ketik ulang kata sandi"
+										required
+										class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+									/>
+								</div>
+								
+								<div class="pt-2">
+									<button
+										type="submit"
+										disabled={isChangingPassword}
+										class="flex w-full items-center justify-center gap-2 rounded-lg bg-blue-600 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-blue-700 disabled:opacity-70"
+									>
+										{#if isChangingPassword}
+											<Loader2 class="animate-spin" size={16} />
+											Menyimpan...
+										{:else}
+											Simpan Kata Sandi Baru
+										{/if}
+									</button>
+								</div>
+							</div>
+						</form>
+					{/if}
 				</div>
 			</div>
 

@@ -460,6 +460,7 @@
 								Lihat File Saat Ini
 								<ExternalLink size={12} />
 							</a>
+							{#if auth.isOperator}
 							<button
 								type="button"
 								onclick={handleRemoveFileOnly}
@@ -468,11 +469,13 @@
 							>
 								Hapus File Saja
 							</button>
+							{/if}
 						</div>
 					{/if}
 				</div>
 
 				<div class="space-y-1">
+					{#if auth.isOperator}
 					<label class="text-sm font-medium text-slate-700" for="file_upload"
 						>Ganti File (Unggah Baru)</label
 					>
@@ -514,6 +517,10 @@
 						Pilih file baru jika ingin mengganti dokumen sebelumnya. Anda bisa memilih lebih dari
 						satu gambar sekaligus untuk digabungkan menjadi 1 dokumen PDF utuh.
 					</p>
+					{/if}
+					{#if !auth.isOperator && !arsip.file_url}
+					<p class="text-sm text-slate-500 italic py-2">Belum ada dokumen digital yang dilampirkan pada arsip ini.</p>
+					{/if}
 				</div>
 			</div>
 
