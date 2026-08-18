@@ -247,7 +247,10 @@
 						</button>
 					{/if}
 					
-					<p class="text-xs text-slate-500 mt-3 pt-2 border-t border-slate-100">Kosongkan jika dokumen fisik belum didigitalisasi. Anda bisa memilih lebih dari satu gambar sekaligus untuk dijadikan 1 dokumen PDF utuh.</p>
+					<p class="text-[11px] text-slate-500 mt-3 pt-2 border-t border-slate-100">
+						Kosongkan jika dokumen fisik belum didigitalisasi. Anda bisa memilih lebih dari satu gambar sekaligus.
+						<br/><span class="text-amber-600 font-medium">*Sistem akan mengompres ukuran foto secara otomatis. Namun khusus untuk unggahan file berformat PDF langsung, pastikan ukurannya tidak lebih dari 4.5MB agar tidak ditolak oleh server.</span>
+					</p>
 				</div>
 			</div>
 

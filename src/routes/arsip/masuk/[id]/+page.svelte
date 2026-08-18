@@ -529,9 +529,10 @@
 							{/if}
 						</button>
 					{/if}
-					<p class="mt-1 text-xs text-slate-500">
+					<p class="mt-1 text-[11px] text-slate-500">
 						Pilih file baru jika ingin mengganti dokumen sebelumnya. Anda bisa memilih lebih dari
-						satu gambar sekaligus untuk digabungkan menjadi 1 dokumen PDF utuh.
+						satu gambar sekaligus.
+						<br/><span class="text-amber-600 font-medium">*Sistem akan mengompres ukuran foto secara otomatis. Namun khusus untuk unggahan file berformat PDF langsung, pastikan ukurannya tidak lebih dari 4.5MB agar tidak ditolak oleh server.</span>
 					</p>
 					{/if}
 					{#if !auth.isOperator && !arsip.file_url}
