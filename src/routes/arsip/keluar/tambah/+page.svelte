@@ -48,6 +48,7 @@
 			if (result.data) {
 				if (result.data.nomor_register) formData.no_register = result.data.nomor_register;
 				if (result.data.nomor_index) formData.no_index = result.data.nomor_index;
+				if (result.data.tanggal_pembuatan) formData.tanggal_pembuatan = result.data.tanggal_pembuatan;
 				if (result.data.perihal) formData.perihal = result.data.perihal;
 				if (result.data.tujuan) formData.tujuan = result.data.tujuan;
 				if (result.data.nama_pemohon) formData.keterangan = result.data.nama_pemohon;

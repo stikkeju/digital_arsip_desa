@@ -29,30 +29,32 @@ export async function POST({ request }) {
 		let responseSchema = {};
 
 		if (formType === 'masuk') {
-			prompt = `Ekstrak informasi dari surat dinas ini. Carikan nomor_surat, tanggal_surat, asal_surat (instansi pengirim), dan perihal.`;
+			prompt = `Ekstrak informasi dari surat dinas ini. Carikan nomor_register (jika ada tulisan tangan/stempel agenda terima), nomor_surat, tanggal_terima (cari tanggal stempel diterima, jika tidak ada gunakan tanggal surat dibuat), asal_surat (instansi pengirim), perihal, dan keterangan (catatan/disposisi tulisan tangan jika ada). Format tanggal harus YYYY-MM-DD.`;
 			responseSchema = {
 				type: 'OBJECT',
 				properties: {
+					nomor_register: { type: 'STRING', description: 'Nomor agenda/register terima jika ada' },
 					nomor_surat: { type: 'STRING', description: 'Nomor surat lengkap yang tertera' },
-					tanggal_surat: { type: 'STRING', description: 'Tanggal surat dibuat dalam format YYYY-MM-DD' },
+					tanggal_terima: { type: 'STRING', description: 'Tanggal surat dalam format YYYY-MM-DD' },
 					asal_surat: { type: 'STRING', description: 'Instansi atau pihak pengirim surat' },
-					perihal: { type: 'STRING', description: 'Ringkasan isi atau perihal surat' }
+					perihal: { type: 'STRING', description: 'Ringkasan isi atau perihal surat' },
+					keterangan: { type: 'STRING', description: 'Catatan tambahan/tulisan tangan di surat' }
 				},
-				required: ['nomor_surat', 'tanggal_surat', 'asal_surat', 'perihal']
+				required: ['nomor_surat', 'tanggal_terima', 'asal_surat', 'perihal']
 			};
 		} else {
-			prompt = `Ekstrak informasi dari rancangan surat ini. Carikan nomor_surat, lalu pecah menjadi nomor_register dan nomor_index. Carikan juga perihal, tujuan instansi (jika ada), dan nama_pemohon (warga yang meminta surat).`;
+			prompt = `Ekstrak informasi dari rancangan surat pemerintahan desa ini. Carikan nomor_surat, lalu pecah menjadi nomor_register (angka urut) dan nomor_index (kode klasifikasi). Carikan juga tanggal_pembuatan (format YYYY-MM-DD), perihal, tujuan instansi, dan nama_pemohon (warga yang meminta surat).`;
 			responseSchema = {
 				type: 'OBJECT',
 				properties: {
-					nomor_surat: { type: 'STRING', description: 'Nomor surat utuh, misal: 140/01/Ds/2026' },
 					nomor_register: { type: 'STRING', description: 'Angka urut dari nomor_surat, misal: 1' },
 					nomor_index: { type: 'STRING', description: 'Kode klasifikasi dari nomor_surat, misal: 140' },
+					tanggal_pembuatan: { type: 'STRING', description: 'Tanggal pembuatan surat format YYYY-MM-DD' },
 					perihal: { type: 'STRING', description: 'Maksud atau judul utama surat' },
 					tujuan: { type: 'STRING', description: 'Instansi tujuan penerima surat' },
 					nama_pemohon: { type: 'STRING', description: 'Nama warga yang menjadi subjek surat' }
 				},
-				required: ['perihal']
+				required: ['perihal', 'tanggal_pembuatan']
 			};
 		}
 

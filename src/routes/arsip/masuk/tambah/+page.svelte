@@ -46,10 +46,12 @@
 			}
 
 			if (result.data) {
+				if (result.data.nomor_register) formData.no_register = result.data.nomor_register;
 				if (result.data.nomor_surat) formData.no_surat = result.data.nomor_surat;
-				if (result.data.tanggal_surat) formData.tanggal_terima = result.data.tanggal_surat; // atau tanggal surat
+				if (result.data.tanggal_terima) formData.tanggal_terima = result.data.tanggal_terima;
 				if (result.data.asal_surat) formData.pengirim = result.data.asal_surat;
 				if (result.data.perihal) formData.perihal = result.data.perihal;
+				if (result.data.keterangan) formData.keterangan = result.data.keterangan;
 				alert('✨ Form berhasil diisi otomatis oleh AI!');
 			}
 		} catch (err: any) {
