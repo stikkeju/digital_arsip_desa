@@ -54,10 +54,10 @@
 				if (result.data.tujuan) formData.tujuan = result.data.tujuan;
 				if (result.data.nama_pemohon) formData.nama_pemohon = result.data.nama_pemohon;
 				if (result.data.keterangan) formData.keterangan = result.data.keterangan;
-				alert('✨ Form berhasil diisi otomatis oleh AI!');
+				alert('✨ Form berhasil diisi otomatis oleh Sistem!');
 			}
 		} catch (err: any) {
-			alert('AI gagal membaca dokumen: ' + err.message);
+			alert('Sistem gagal membaca dokumen: ' + err.message);
 		} finally {
 			isScanning = false;
 		}

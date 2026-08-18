@@ -52,10 +52,10 @@
 				if (result.data.asal_surat) formData.pengirim = result.data.asal_surat;
 				if (result.data.perihal) formData.perihal = result.data.perihal;
 				if (result.data.keterangan) formData.keterangan = result.data.keterangan;
-				alert('✨ Form berhasil diisi otomatis oleh AI!');
+				alert('✨ Form berhasil diisi otomatis oleh Sistem!');
 			}
 		} catch (err: any) {
-			alert('AI gagal membaca dokumen: ' + err.message);
+			alert('Sistem gagal membaca dokumen: ' + err.message);
 		} finally {
 			isScanning = false;
 		}
