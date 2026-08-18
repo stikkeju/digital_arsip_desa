@@ -8,6 +8,8 @@
 
 	let isLoading = $state(false);
 	let isDeleting = $state(false);
+	let isScanning = $state(false);
+	let aiSuggestions = $state<any>(null);
 
 	let formData = $state({
 		no_register: arsip.no_register || '',
@@ -35,6 +37,38 @@
 			selectedFiles = Array.from(target.files);
 		} else {
 			selectedFiles = [];
+		}
+	}
+
+	async function handleAutoFill() {
+		if (selectedFiles.length === 0) return;
+		
+		isScanning = true;
+		aiSuggestions = null;
+		
+		try {
+			const ocrData = new FormData();
+			ocrData.append('files', selectedFiles[0]); // Kirim foto pertama saja
+			ocrData.append('formType', 'masuk');
+
+			const res = await fetch('/api/ocr', {
+				method: 'POST',
+				body: ocrData
+			});
+
+			const result = await res.json();
+			if (!res.ok || result.error) {
+				throw new Error(result.error || 'Gagal memproses AI OCR');
+			}
+
+			if (result.data) {
+				aiSuggestions = result.data;
+				alert('✨ AI selesai membaca dokumen! Periksa saran berkedip di bawah setiap isian.');
+			}
+		} catch (err: any) {
+			alert('AI gagal membaca dokumen: ' + err.message);
+		} finally {
+			isScanning = false;
 		}
 	}
 
@@ -208,11 +242,25 @@
 					<div class="space-y-1">
 						<label class="text-sm font-medium text-slate-700" for="no_register">Nomor Register</label>
 						<input type="text" id="no_register" bind:value={formData.no_register} class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none" required />
+						{#if aiSuggestions?.nomor_register && aiSuggestions.nomor_register !== formData.no_register}
+							<div class="mt-1 flex flex-wrap items-center gap-1.5 rounded-md bg-indigo-50 px-2 py-1.5 text-[11px] text-indigo-700 border border-indigo-100 shadow-sm animate-in fade-in slide-in-from-top-1">
+								<span class="font-medium flex items-center gap-1"><span class="text-indigo-400">✨</span> Saran AI:</span>
+								<span class="font-bold truncate max-w-[200px]">{aiSuggestions.nomor_register}</span>
+								<button type="button" onclick={() => { formData.no_register = aiSuggestions.nomor_register; aiSuggestions.nomor_register = null; }} class="ml-auto rounded bg-indigo-100 hover:bg-indigo-200 px-2 py-0.5 font-bold transition-colors">Pakai Ini</button>
+							</div>
+						{/if}
 					</div>
 
 					<div class="space-y-1">
 						<label class="text-sm font-medium text-slate-700" for="no_surat">Nomor Surat Asli</label>
 						<input type="text" id="no_surat" bind:value={formData.no_surat} class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none" placeholder="Cth: B.123/DISPENDUK/2026" />
+						{#if aiSuggestions?.nomor_surat && aiSuggestions.nomor_surat !== formData.no_surat}
+							<div class="mt-1 flex flex-wrap items-center gap-1.5 rounded-md bg-indigo-50 px-2 py-1.5 text-[11px] text-indigo-700 border border-indigo-100 shadow-sm animate-in fade-in slide-in-from-top-1">
+								<span class="font-medium flex items-center gap-1"><span class="text-indigo-400">✨</span> Saran AI:</span>
+								<span class="font-bold truncate max-w-[200px]">{aiSuggestions.nomor_surat}</span>
+								<button type="button" onclick={() => { formData.no_surat = aiSuggestions.nomor_surat; aiSuggestions.nomor_surat = null; }} class="ml-auto rounded bg-indigo-100 hover:bg-indigo-200 px-2 py-0.5 font-bold transition-colors">Pakai Ini</button>
+							</div>
+						{/if}
 					</div>
 				</div>
 
@@ -220,23 +268,51 @@
 					<div class="space-y-1">
 						<label class="text-sm font-medium text-slate-700" for="tanggal_terima">Tanggal Terima</label>
 						<input type="date" id="tanggal_terima" bind:value={formData.tanggal_terima} class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none" />
+						{#if aiSuggestions?.tanggal_terima && aiSuggestions.tanggal_terima !== formData.tanggal_terima}
+							<div class="mt-1 flex flex-wrap items-center gap-1.5 rounded-md bg-indigo-50 px-2 py-1.5 text-[11px] text-indigo-700 border border-indigo-100 shadow-sm animate-in fade-in slide-in-from-top-1">
+								<span class="font-medium flex items-center gap-1"><span class="text-indigo-400">✨</span> Saran AI:</span>
+								<span class="font-bold truncate max-w-[200px]">{aiSuggestions.tanggal_terima}</span>
+								<button type="button" onclick={() => { formData.tanggal_terima = aiSuggestions.tanggal_terima; aiSuggestions.tanggal_terima = null; }} class="ml-auto rounded bg-indigo-100 hover:bg-indigo-200 px-2 py-0.5 font-bold transition-colors">Pakai Ini</button>
+							</div>
+						{/if}
 					</div>
 					
 					<div class="space-y-1">
 						<label class="text-sm font-medium text-slate-700" for="pengirim">Pengirim</label>
 						<input type="text" id="pengirim" bind:value={formData.pengirim} class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none" />
+						{#if aiSuggestions?.asal_surat && aiSuggestions.asal_surat !== formData.pengirim}
+							<div class="mt-1 flex flex-wrap items-center gap-1.5 rounded-md bg-indigo-50 px-2 py-1.5 text-[11px] text-indigo-700 border border-indigo-100 shadow-sm animate-in fade-in slide-in-from-top-1">
+								<span class="font-medium flex items-center gap-1"><span class="text-indigo-400">✨</span> Saran AI:</span>
+								<span class="font-bold truncate max-w-[200px]">{aiSuggestions.asal_surat}</span>
+								<button type="button" onclick={() => { formData.pengirim = aiSuggestions.asal_surat; aiSuggestions.asal_surat = null; }} class="ml-auto rounded bg-indigo-100 hover:bg-indigo-200 px-2 py-0.5 font-bold transition-colors">Pakai Ini</button>
+							</div>
+						{/if}
 					</div>
 				</div>
 
 				<div class="space-y-1">
 					<label class="text-sm font-medium text-slate-700" for="perihal">Perihal Surat</label>
 					<textarea id="perihal" bind:value={formData.perihal} rows="2" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"></textarea>
+					{#if aiSuggestions?.perihal && aiSuggestions.perihal !== formData.perihal}
+						<div class="mt-1 flex flex-wrap items-center gap-1.5 rounded-md bg-indigo-50 px-2 py-1.5 text-[11px] text-indigo-700 border border-indigo-100 shadow-sm animate-in fade-in slide-in-from-top-1">
+							<span class="font-medium flex items-center gap-1"><span class="text-indigo-400">✨</span> Saran AI:</span>
+							<span class="font-bold truncate max-w-[400px]">{aiSuggestions.perihal}</span>
+							<button type="button" onclick={() => { formData.perihal = aiSuggestions.perihal; aiSuggestions.perihal = null; }} class="ml-auto rounded bg-indigo-100 hover:bg-indigo-200 px-2 py-0.5 font-bold transition-colors">Pakai Ini</button>
+						</div>
+					{/if}
 				</div>
 				
 				<!-- Keterangan -->
 				<div class="space-y-1 sm:col-span-2">
 					<label class="text-sm font-medium text-slate-700" for="keterangan">Catatan Tambahan (Keterangan)</label>
 					<input bind:value={formData.keterangan} type="text" id="keterangan" placeholder="Catatan opsional (Misal: Dokumen kurang lengkap, dsb)" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-shadow" />
+					{#if aiSuggestions?.keterangan && aiSuggestions.keterangan !== formData.keterangan}
+						<div class="mt-1 flex flex-wrap items-center gap-1.5 rounded-md bg-indigo-50 px-2 py-1.5 text-[11px] text-indigo-700 border border-indigo-100 shadow-sm animate-in fade-in slide-in-from-top-1">
+							<span class="font-medium flex items-center gap-1"><span class="text-indigo-400">✨</span> Saran AI:</span>
+							<span class="font-bold truncate max-w-[400px]">{aiSuggestions.keterangan}</span>
+							<button type="button" onclick={() => { formData.keterangan = aiSuggestions.keterangan; aiSuggestions.keterangan = null; }} class="ml-auto rounded bg-indigo-100 hover:bg-indigo-200 px-2 py-0.5 font-bold transition-colors">Pakai Ini</button>
+						</div>
+					{/if}
 				</div>
 			</div>
 
@@ -268,6 +344,15 @@
 								{/each}
 							</ul>
 						</div>
+
+						<button type="button" onclick={handleAutoFill} disabled={isScanning} class="mt-3 w-full flex items-center justify-center gap-2 rounded-lg bg-indigo-600 py-2.5 font-semibold text-white shadow-sm hover:bg-indigo-700 transition-colors disabled:opacity-70">
+							{#if isScanning}
+								<Loader2 class="animate-spin" size={16} />
+								Memindai Dokumen...
+							{:else}
+								✨ Pindai & Cocokkan Data
+							{/if}
+						</button>
 					{/if}
 					<p class="text-xs text-slate-500 mt-1">Pilih file baru jika ingin mengganti dokumen sebelumnya. Anda bisa memilih lebih dari satu gambar sekaligus untuk digabungkan menjadi 1 dokumen PDF utuh.</p>
 				</div>
