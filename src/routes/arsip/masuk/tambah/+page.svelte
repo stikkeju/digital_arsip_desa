@@ -161,9 +161,10 @@
 					<textarea id="perihal" bind:value={formData.perihal} rows="2" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-primary-500 focus:ring-1 focus:ring-primary-500 outline-none"></textarea>
 				</div>
 				
+				<!-- Keterangan -->
 				<div class="space-y-1">
-					<label class="text-sm font-medium text-slate-700" for="keterangan">Keterangan Tambahan</label>
-					<input type="text" id="keterangan" bind:value={formData.keterangan} class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-primary-500 focus:ring-1 focus:ring-primary-500 outline-none" />
+					<label class="text-sm font-medium text-slate-700" for="keterangan">Catatan Tambahan (Keterangan)</label>
+					<input bind:value={formData.keterangan} type="text" id="keterangan" placeholder="Catatan opsional (Misal: Dokumen kurang lengkap, dsb)" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-shadow" />
 				</div>
 			</div>
 
