@@ -23,14 +23,14 @@
 
 	let newFieldKey = $state('');
 	
-	let selectedFile = $state<File | null>(null);
+	let selectedFiles = $state<File[]>([]);
 
 	function handleFileChange(e: Event) {
 		const target = e.target as HTMLInputElement;
 		if (target.files && target.files.length > 0) {
-			selectedFile = target.files[0];
+			selectedFiles = Array.from(target.files);
 		} else {
-			selectedFile = null;
+			selectedFiles = [];
 		}
 	}
 
@@ -52,10 +52,10 @@
 		let finalFileUrl = formData.file_url;
 
 		// 1. Upload file if selected
-		if (selectedFile) {
+		if (selectedFiles.length > 0) {
 			try {
 				const uploadData = new FormData();
-				uploadData.append('file', selectedFile);
+				selectedFiles.forEach(f => uploadData.append('files', f));
 				uploadData.append('folderType', 'Surat Masuk');
 				// Gunakan tanggal hari ini jika tanggal_terima kosong
 				const tgl = formData.tanggal_terima || new Date().toISOString().split('T')[0];
@@ -65,9 +65,10 @@
 				// Ekstrak no_index jika ada dari customFields, tapi untuk surat masuk kita belum punya no_index,
 				// jadi gunakan 'Masuk' sebagai index placeholder jika tidak ada.
 				const noIndex = 'Masuk';
-				const safePerihal = formData.perihal.replace(/[^a-zA-Z0-9]/g, '_').substring(0, 20);
-				const safeKet = formData.keterangan.replace(/[^a-zA-Z0-9]/g, '_').substring(0, 15);
-				const filename = `${formData.no_register}_${noIndex}_${tgl}_${safePerihal}_${safeKet}`.replace(/_+/g, '_');
+				const safePerihal = formData.perihal.replace(/[^a-zA-Z0-9]/g, '_').substring(0, 150);
+				const safeKet = formData.keterangan.replace(/[^a-zA-Z0-9]/g, '_').substring(0, 150);
+				const noSurat = formData.no_surat ? formData.no_surat.replace(/[^a-zA-Z0-9]/g, '_') : 'TANPA_NO';
+				const filename = `${formData.no_register}_${noSurat}_${noIndex}_${tgl}_${safePerihal}_${safeKet}`.replace(/_+/g, '_');
 				
 				uploadData.append('filename', filename);
 
@@ -171,8 +172,18 @@
 				<h2 class="font-semibold text-slate-800 border-b border-slate-100 pb-2">Dokumen Digital</h2>
 				<div class="space-y-1">
 					<label class="text-sm font-medium text-slate-700" for="file_upload">Unggah Foto / PDF Surat</label>
-					<input type="file" id="file_upload" accept="image/jpeg, image/png, application/pdf" onchange={handleFileChange} class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-primary-500 focus:ring-1 focus:ring-primary-500 outline-none file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary-50 file:text-primary-700 hover:file:bg-primary-100" />
-					<p class="text-xs text-slate-500 mt-1">Kosongkan jika dokumen fisik belum didigitalisasi. Gambar resolusi tinggi akan otomatis dikecilkan (kompresi) dan diubah menjadi PDF.</p>
+					<input type="file" id="file_upload" accept="image/jpeg, image/png, application/pdf" multiple onchange={handleFileChange} class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-primary-500 focus:ring-1 focus:ring-primary-500 outline-none file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary-50 file:text-primary-700 hover:file:bg-primary-100" />
+					{#if selectedFiles.length > 0}
+						<div class="mt-2 p-2 bg-blue-50 rounded-lg">
+							<p class="text-xs font-semibold text-blue-700">{selectedFiles.length} file dipilih:</p>
+							<ul class="text-[11px] text-blue-600 list-disc list-inside mt-1">
+								{#each selectedFiles as f}
+									<li class="truncate">{f.name}</li>
+								{/each}
+							</ul>
+						</div>
+					{/if}
+					<p class="text-xs text-slate-500 mt-1">Kosongkan jika dokumen fisik belum didigitalisasi. Anda bisa memilih lebih dari satu gambar sekaligus untuk dijadikan 1 dokumen PDF utuh.</p>
 				</div>
 			</div>
 

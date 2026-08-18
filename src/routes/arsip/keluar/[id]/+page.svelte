@@ -27,14 +27,14 @@
 	);
 
 	let newFieldKey = $state('');
-	let selectedFile = $state<File | null>(null);
+	let selectedFiles = $state<File[]>([]);
 
 	function handleFileChange(e: Event) {
 		const target = e.target as HTMLInputElement;
 		if (target.files && target.files.length > 0) {
-			selectedFile = target.files[0];
+			selectedFiles = Array.from(target.files);
 		} else {
-			selectedFile = null;
+			selectedFiles = [];
 		}
 	}
 
@@ -55,17 +55,17 @@
 
 		let finalFileUrl = formData.file_url;
 
-		if (selectedFile) {
+		if (selectedFiles.length > 0) {
 			try {
 				const uploadData = new FormData();
-				uploadData.append('file', selectedFile);
+				selectedFiles.forEach(f => uploadData.append('files', f));
 				uploadData.append('folderType', 'Surat Keluar');
 				const tgl = formData.tanggal_pembuatan || new Date().toISOString().split('T')[0];
 				uploadData.append('tanggal', tgl);
 				
 				const noIndex = formData.no_index.replace(/[^a-zA-Z0-9]/g, '_') || 'Keluar';
-				const safePerihal = formData.perihal.replace(/[^a-zA-Z0-9]/g, '_').substring(0, 20);
-				const safeKet = formData.keterangan.replace(/[^a-zA-Z0-9]/g, '_').substring(0, 15);
+				const safePerihal = formData.perihal.replace(/[^a-zA-Z0-9]/g, '_').substring(0, 150);
+				const safeKet = formData.keterangan.replace(/[^a-zA-Z0-9]/g, '_').substring(0, 150);
 				const filename = `${formData.no_register}_${noIndex}_${tgl}_${safePerihal}_${safeKet}`.replace(/_+/g, '_');
 				
 				uploadData.append('filename', filename);
@@ -138,6 +138,36 @@
 			goto('/arsip/keluar');
 		}
 	}
+
+	async function handleRemoveFileOnly() {
+		const confirmDelete = confirm('Yakin ingin menghapus dokumen fisik dari arsip ini? (Data detail tetap dipertahankan)');
+		if (!confirmDelete) return;
+
+		isLoading = true;
+		
+		try {
+			await fetch('/api/delete-file', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ file_url: arsip.file_url })
+			});
+
+			const { error } = await supabase
+				.from('arsip_surat_keluar')
+				.update({ file_url: null })
+				.eq('id', arsip.id);
+
+			if (error) throw error;
+
+			arsip.file_url = '';
+			formData.file_url = '';
+			alert('File berhasil dihapus!');
+		} catch (e: any) {
+			alert('Gagal menghapus file: ' + e.message);
+		} finally {
+			isLoading = false;
+		}
+	}
 </script>
 
 <div class="flex h-full flex-col bg-slate-50">
@@ -207,17 +237,32 @@
 				<div class="flex items-center justify-between border-b border-slate-100 pb-2">
 					<h2 class="font-semibold text-slate-800">Dokumen Digital</h2>
 					{#if arsip.file_url}
-						<a href={arsip.file_url} target="_blank" class="flex items-center gap-1.5 text-xs font-semibold text-primary-600 hover:text-primary-700 bg-primary-50 px-2.5 py-1 rounded-md transition-colors">
-							Lihat File Saat Ini
-							<ExternalLink size={12} />
-						</a>
+						<div class="flex items-center gap-2">
+							<a href={arsip.file_url} target="_blank" class="flex items-center gap-1.5 text-xs font-semibold text-blue-600 hover:text-blue-700 bg-blue-50 px-2.5 py-1 rounded-md transition-colors">
+								Lihat File Saat Ini
+								<ExternalLink size={12} />
+							</a>
+							<button type="button" onclick={handleRemoveFileOnly} disabled={isLoading} class="flex items-center gap-1.5 text-xs font-semibold text-red-600 hover:text-red-700 bg-red-50 hover:bg-red-100 px-2.5 py-1 rounded-md transition-colors disabled:opacity-50">
+								Hapus File Saja
+							</button>
+						</div>
 					{/if}
 				</div>
 				
 				<div class="space-y-1">
 					<label class="text-sm font-medium text-slate-700" for="file_upload">Ganti File (Unggah Baru)</label>
-					<input type="file" id="file_upload" accept="image/jpeg, image/png, application/pdf" onchange={handleFileChange} class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-primary-500 focus:ring-1 focus:ring-primary-500 outline-none file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary-50 file:text-primary-700 hover:file:bg-primary-100" />
-					<p class="text-xs text-slate-500 mt-1">Pilih file baru jika ingin mengganti dokumen sebelumnya. Biarkan kosong jika tidak ada perubahan.</p>
+					<input type="file" id="file_upload" accept="image/jpeg, image/png, application/pdf" multiple onchange={handleFileChange} class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" />
+					{#if selectedFiles.length > 0}
+						<div class="mt-2 p-2 bg-blue-50 rounded-lg">
+							<p class="text-xs font-semibold text-blue-700">{selectedFiles.length} file dipilih:</p>
+							<ul class="text-[11px] text-blue-600 list-disc list-inside mt-1">
+								{#each selectedFiles as f}
+									<li class="truncate">{f.name}</li>
+								{/each}
+							</ul>
+						</div>
+					{/if}
+					<p class="text-xs text-slate-500 mt-1">Pilih file baru jika ingin mengganti dokumen sebelumnya. Anda bisa memilih lebih dari satu gambar sekaligus untuk digabungkan menjadi 1 dokumen PDF utuh.</p>
 				</div>
 			</div>
 

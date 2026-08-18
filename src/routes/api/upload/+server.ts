@@ -42,59 +42,65 @@ async function getOrCreateFolder(drive: any, parentId: string, folderName: strin
 	return createRes.data.id;
 }
 
-async function processToPdf(fileBuffer: Buffer, mimeType: string): Promise<Buffer> {
-	if (mimeType === 'application/pdf') {
-		return fileBuffer;
+async function processMultipleToPdf(files: File[]): Promise<Buffer> {
+	if (files.length === 1 && files[0].type === 'application/pdf') {
+		const arrayBuffer = await files[0].arrayBuffer();
+		return Buffer.from(arrayBuffer);
 	}
 
-	let compressedImageBuffer = fileBuffer;
-	if (mimeType.startsWith('image/')) {
-		// Kompresi resolusi lebar maksimal 1500px dan ubah ke JPEG agar hemat size
-		compressedImageBuffer = await sharp(fileBuffer)
-			.resize({ width: 1500, withoutEnlargement: true })
-			.jpeg({ quality: 80 })
-			.toBuffer();
-	} else {
-		throw new Error('Format file tidak didukung. Harap unggah PDF, JPG, atau PNG.');
+	const finalPdfDoc = await PDFDocument.create();
+
+	for (const file of files) {
+		const arrayBuffer = await file.arrayBuffer();
+		const fileBuffer = Buffer.from(arrayBuffer);
+		const mimeType = file.type;
+
+		if (mimeType === 'application/pdf') {
+			const donorPdfDoc = await PDFDocument.load(fileBuffer);
+			const copiedPages = await finalPdfDoc.copyPages(donorPdfDoc, donorPdfDoc.getPageIndices());
+			copiedPages.forEach((page) => finalPdfDoc.addPage(page));
+		} else if (mimeType.startsWith('image/')) {
+			// Kompresi resolusi lebar maksimal 1500px dan ubah ke JPEG agar hemat size
+			const compressedImageBuffer = await sharp(fileBuffer)
+				.resize({ width: 1500, withoutEnlargement: true })
+				.jpeg({ quality: 80 })
+				.toBuffer();
+			
+			const image = await finalPdfDoc.embedJpg(compressedImageBuffer);
+			const page = finalPdfDoc.addPage([image.width, image.height]);
+			page.drawImage(image, {
+				x: 0,
+				y: 0,
+				width: image.width,
+				height: image.height
+			});
+		} else {
+			throw new Error(`Format file ${file.name} tidak didukung. Harap unggah PDF, JPG, atau PNG.`);
+		}
 	}
 
-	// Bungkus gambar ke dalam PDF
-	const pdfDoc = await PDFDocument.create();
-	const image = await pdfDoc.embedJpg(compressedImageBuffer);
-	const page = pdfDoc.addPage([image.width, image.height]);
-	page.drawImage(image, {
-		x: 0,
-		y: 0,
-		width: image.width,
-		height: image.height
-	});
-
-	const pdfBytes = await pdfDoc.save();
+	const pdfBytes = await finalPdfDoc.save();
 	return Buffer.from(pdfBytes);
 }
 
 export async function POST({ request }) {
 	try {
 		const formData = await request.formData();
-		const file = formData.get('file') as File;
+		const files = formData.getAll('files') as File[];
 		const folderType = formData.get('folderType') as string; // 'Surat Masuk' | 'Surat Keluar'
 		const tanggal = formData.get('tanggal') as string; // 'YYYY-MM-DD'
 		const filename = formData.get('filename') as string;
 
-		if (!file || !folderType || !tanggal || !filename) {
-			return json({ error: 'Data form tidak lengkap (file, folderType, tanggal, filename)' }, { status: 400 });
+		if (!files || files.length === 0 || !folderType || !tanggal || !filename) {
+			return json({ error: 'Data form tidak lengkap (files, folderType, tanggal, filename)' }, { status: 400 });
 		}
 
 		if (!env.GOOGLE_DRIVE_FOLDER_ID) {
 			return json({ error: 'GOOGLE_DRIVE_FOLDER_ID belum dikonfigurasi di .env' }, { status: 500 });
 		}
 
-		// Konversi File ke Buffer
-		const arrayBuffer = await file.arrayBuffer();
-		const buffer = Buffer.from(arrayBuffer);
-
-		// 1. Pemrosesan & Kompresi PDF
-		const finalPdfBuffer = await processToPdf(buffer, file.type);
+		// 1. Pemrosesan & Kompresi PDF Gabungan
+		const finalPdfBuffer = await processMultipleToPdf(files);
 
 		// 2. Autentikasi Google Drive
 		const auth = getDriveAuth();
