@@ -2,7 +2,7 @@
 	import { ArrowLeft, Save, Loader2 } from '@lucide/svelte';
 	import { supabase } from '$lib/supabaseClient';
 	import { goto } from '$app/navigation';
-	import { ui } from '$lib/stores/ui.svelte.ts';
+	import { ui } from '$lib/stores/ui.svelte';
 	import { compressImageFiles } from '$lib/clientUtils';
 
 	let { data } = $props();

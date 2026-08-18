@@ -5,8 +5,8 @@
 	import { Inbox, Send, LayoutDashboard, Settings } from '@lucide/svelte';
 	import ToastProvider from '$lib/components/ui/ToastProvider.svelte';
 	import ConfirmModal from '$lib/components/ui/ConfirmModal.svelte';
-	import { auth } from '$lib/stores/auth.svelte.ts';
-	import { ui } from '$lib/stores/ui.svelte.ts';
+	import { auth } from '$lib/stores/auth.svelte';
+	import { ui } from '$lib/stores/ui.svelte';
 	
 	let { children } = $props();
 	let currentPath = $derived(page.url.pathname);

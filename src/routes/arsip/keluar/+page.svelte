@@ -2,7 +2,7 @@
 	import { Search, Filter, Plus, Send, LayoutGrid, List, FileBadge, ExternalLink, Download, FileType2, XCircle } from '@lucide/svelte';
 	import { goto } from '$app/navigation';
 	import { downloadExcel, downloadPDF } from '$lib/exportUtils';
-	import { auth } from '$lib/stores/auth.svelte.ts';
+	import { auth } from '$lib/stores/auth.svelte';
 	import { page } from '$app/stores';
 
 	let { data } = $props();

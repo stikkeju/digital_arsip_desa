@@ -1,8 +1,8 @@
 <script lang="ts">
 	import { supabase } from '$lib/supabaseClient';
 	import { goto } from '$app/navigation';
-	import { ui } from '$lib/stores/ui.svelte.ts';
-	import { auth } from '$lib/stores/auth.svelte.ts';
+	import { ui } from '$lib/stores/ui.svelte';
+	import { auth } from '$lib/stores/auth.svelte';
 	import { Loader2, Lock, Mail } from '@lucide/svelte';
 
 	let email = $state('');

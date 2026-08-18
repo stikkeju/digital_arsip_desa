@@ -1,7 +1,7 @@
 import * as XLSX from 'xlsx';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
-import { ui } from '$lib/stores/ui.svelte.ts';
+import { ui } from '$lib/stores/ui.svelte';
 
 /**
  * Konversi array of objects ke file Excel (.xlsx) dan unduh langsung.

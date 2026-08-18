@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { ui } from '$lib/stores/ui.svelte.ts';
+	import { ui } from '$lib/stores/ui.svelte';
 	import { CheckCircle2, AlertCircle, Info, AlertTriangle, X } from '@lucide/svelte';
 	import { fly, fade } from 'svelte/transition';
 

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { ui } from '$lib/stores/ui.svelte.ts';
+	import { ui } from '$lib/stores/ui.svelte';
 	import { AlertTriangle, X } from '@lucide/svelte';
 	import { fade, scale } from 'svelte/transition';
 	import { onMount, onDestroy } from 'svelte';

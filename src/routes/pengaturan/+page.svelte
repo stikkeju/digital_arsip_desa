@@ -1,8 +1,8 @@
 <script lang="ts">
-	import { auth } from '$lib/stores/auth.svelte.ts';
+	import { auth } from '$lib/stores/auth.svelte';
 	import { LogOut, User, Shield, KeyRound, ArrowLeft, Loader2, X } from '@lucide/svelte';
 	import { goto } from '$app/navigation';
-	import { ui } from '$lib/stores/ui.svelte.ts';
+	import { ui } from '$lib/stores/ui.svelte';
 	import { supabase } from '$lib/supabaseClient';
 
 	let isLoggingOut = $state(false);
