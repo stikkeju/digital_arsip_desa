@@ -2,6 +2,8 @@
 	import '../app.css';
 	import { page } from '$app/state';
 	import { Inbox, Send, LayoutDashboard } from '@lucide/svelte';
+	import ToastProvider from '$lib/components/ui/ToastProvider.svelte';
+	import ConfirmModal from '$lib/components/ui/ConfirmModal.svelte';
 	
 	let { children } = $props();
 	let currentPath = $derived(page.url.pathname);
@@ -13,6 +15,9 @@
 	<main class="flex-1 overflow-y-auto pb-24">
 		{@render children()}
 	</main>
+
+	<ToastProvider />
+	<ConfirmModal />
 
 	<!-- Bottom Navigation (Mobile-First) -->
 	<nav class="fixed bottom-0 left-0 right-0 z-50 border-t border-slate-200 bg-white/90 backdrop-blur-md pb-safe">

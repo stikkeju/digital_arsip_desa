@@ -2,6 +2,7 @@
 	import { ArrowLeft, Save, Loader2, Trash2, ExternalLink } from '@lucide/svelte';
 	import { supabase } from '$lib/supabaseClient';
 	import { goto } from '$app/navigation';
+	import { ui } from '$lib/stores/ui.svelte.ts';
 
 	let { data } = $props();
 	let arsip = data.arsip;
@@ -64,10 +65,10 @@
 
 			if (result.data) {
 				aiSuggestions = result.data;
-				alert('✨ Sistem selesai membaca dokumen! Periksa rekomendasi berkedip di bawah setiap isian.');
+				ui.addToast('Sistem selesai membaca dokumen! Periksa rekomendasi berkedip di bawah setiap isian.', 'success');
 			}
 		} catch (err: any) {
-			alert('Sistem gagal membaca dokumen: ' + err.message);
+			ui.addToast('Sistem gagal membaca dokumen: ' + err.message, 'error');
 		} finally {
 			isScanning = false;
 		}
@@ -118,7 +119,7 @@
 
 				finalFileUrl = result.url;
 			} catch (err: any) {
-				alert('Gagal mengunggah dokumen: ' + err.message);
+				ui.addToast('Gagal mengunggah dokumen: ' + err.message, 'error');
 				isLoading = false;
 				return;
 			}
@@ -140,71 +141,79 @@
 		isLoading = false;
 
 		if (error) {
-			alert('Gagal memperbarui data: ' + error.message);
+			ui.addToast('Gagal memperbarui data: ' + error.message, 'error');
 		} else {
+			ui.addToast('Data berhasil diperbarui!', 'success');
 			goto('/arsip/keluar');
 		}
 	}
 
-	async function handleDelete() {
-		const confirmDelete = confirm('Apakah Anda yakin ingin menghapus arsip ini secara permanen?');
-		if (!confirmDelete) return;
+	function handleDelete() {
+		ui.showConfirm({
+			title: 'Hapus Arsip',
+			message: 'Apakah Anda yakin ingin menghapus arsip ini secara permanen?',
+			confirmText: 'Ya, Hapus',
+			onConfirm: async () => {
+				isDeleting = true;
 
-		isDeleting = true;
+				if (arsip.file_url) {
+					try {
+						await fetch('/api/delete-file', {
+							method: 'POST',
+							headers: { 'Content-Type': 'application/json' },
+							body: JSON.stringify({ file_url: arsip.file_url })
+						});
+					} catch (e) {
+						console.error('Gagal menghapus file dari drive', e);
+					}
+				}
 
-		if (arsip.file_url) {
-			try {
-				await fetch('/api/delete-file', {
-					method: 'POST',
-					headers: { 'Content-Type': 'application/json' },
-					body: JSON.stringify({ file_url: arsip.file_url })
-				});
-			} catch (e) {
-				console.error('Gagal menghapus file dari drive', e);
+				const { error } = await supabase.from('arsip_surat_keluar').delete().eq('id', arsip.id);
+
+				isDeleting = false;
+
+				if (error) {
+					ui.addToast('Gagal menghapus data: ' + error.message, 'error');
+				} else {
+					ui.addToast('Arsip berhasil dihapus!', 'success');
+					goto('/arsip/keluar');
+				}
 			}
-		}
-
-		const { error } = await supabase.from('arsip_surat_keluar').delete().eq('id', arsip.id);
-
-		isDeleting = false;
-
-		if (error) {
-			alert('Gagal menghapus data: ' + error.message);
-		} else {
-			goto('/arsip/keluar');
-		}
+		});
 	}
 
-	async function handleRemoveFileOnly() {
-		const confirmDelete = confirm(
-			'Yakin ingin menghapus dokumen fisik dari arsip ini? (Data detail tetap dipertahankan)'
-		);
-		if (!confirmDelete) return;
+	function handleRemoveFileOnly() {
+		ui.showConfirm({
+			title: 'Hapus Dokumen Fisik',
+			message: 'Yakin ingin menghapus dokumen fisik dari arsip ini? (Data detail tetap dipertahankan)',
+			confirmText: 'Ya, Hapus Dokumen',
+			onConfirm: async () => {
+				isLoading = true;
 
-		isLoading = true;
+				try {
+					await fetch('/api/delete-file', {
+						method: 'POST',
+						headers: { 'Content-Type': 'application/json' },
+						body: JSON.stringify({ file_url: arsip.file_url })
+					});
 
-		try {
-			await fetch('/api/delete-file', {
-				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({ file_url: arsip.file_url })
-			});
+					const { error } = await supabase
+						.from('arsip_surat_keluar')
+						.update({ file_url: null })
+						.eq('id', arsip.id);
 
-			const { error } = await supabase
-				.from('arsip_surat_keluar')
-				.update({ file_url: null })
-				.eq('id', arsip.id);
+					if (error) throw error;
 
-			if (error) throw error;
-
-			arsip.file_url = '';
-			formData.file_url = '';
-			alert('File berhasil dihapus!');
-		} catch (e: any) {
-			alert('Gagal menghapus file: ' + e.message);
-		} finally {
-			isLoading = false;
-		}
+					arsip.file_url = '';
+					formData.file_url = '';
+					ui.addToast('File berhasil dihapus!', 'success');
+				} catch (e: any) {
+					ui.addToast('Gagal menghapus file: ' + e.message, 'error');
+				} finally {
+					isLoading = false;
+				}
+			}
+		});
 	}
 </script>
 

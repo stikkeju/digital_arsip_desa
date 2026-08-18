@@ -2,6 +2,7 @@
 	import { ArrowLeft, Save, Loader2 } from '@lucide/svelte';
 	import { supabase } from '$lib/supabaseClient';
 	import { goto } from '$app/navigation';
+	import { ui } from '$lib/stores/ui.svelte.ts';
 
 	let { data } = $props();
 
@@ -52,10 +53,10 @@
 				if (result.data.asal_surat) formData.pengirim = result.data.asal_surat;
 				if (result.data.perihal) formData.perihal = result.data.perihal;
 				if (result.data.keterangan) formData.keterangan = result.data.keterangan;
-				alert('✨ Form berhasil diisi otomatis oleh Sistem!');
+				ui.addToast('Form berhasil diisi otomatis oleh Sistem!', 'success');
 			}
 		} catch (err: any) {
-			alert('Sistem gagal membaca dokumen: ' + err.message);
+			ui.addToast('Sistem gagal membaca dokumen: ' + err.message, 'error');
 		} finally {
 			isScanning = false;
 		}
@@ -120,7 +121,7 @@
 
 				finalFileUrl = result.url;
 			} catch (err: any) {
-				alert('Gagal mengunggah dokumen: ' + err.message);
+				ui.addToast('Gagal mengunggah dokumen: ' + err.message, 'error');
 				isLoading = false;
 				return;
 			}
@@ -139,8 +140,9 @@
 		isLoading = false;
 
 		if (error) {
-			alert('Gagal menyimpan data: ' + error.message);
+			ui.addToast('Gagal menyimpan data: ' + error.message, 'error');
 		} else {
+			ui.addToast('Data berhasil ditambahkan!', 'success');
 			// Redirect back to list
 			goto('/arsip/masuk');
 		}

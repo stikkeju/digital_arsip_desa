@@ -1,13 +1,14 @@
 import * as XLSX from 'xlsx';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
+import { ui } from '$lib/stores/ui.svelte.ts';
 
 /**
  * Konversi array of objects ke file Excel (.xlsx) dan unduh langsung.
  */
 export function downloadExcel(data: any[], filename: string, sheetName: string = 'Laporan') {
 	if (!data || data.length === 0) {
-		alert('Tidak ada data untuk diekspor!');
+		ui.addToast('Tidak ada data untuk diekspor!', 'warning');
 		return;
 	}
 
@@ -32,7 +33,7 @@ export function downloadExcel(data: any[], filename: string, sheetName: string =
  */
 export async function downloadPDF(title: string, periode: string, columns: {header: string, dataKey: string}[], rawData: any[], filename: string) {
 	if (!rawData || rawData.length === 0) {
-		alert('Tidak ada data untuk diekspor!');
+		ui.addToast('Tidak ada data untuk diekspor!', 'warning');
 		return;
 	}
 
@@ -141,6 +142,6 @@ export async function downloadPDF(title: string, periode: string, columns: {head
 		doc.save(`${filename}.pdf`);
 	} catch (err) {
 		console.error("Error generating PDF:", err);
-		alert("Terjadi kesalahan saat membuat PDF. Pastikan logo dapat diakses.");
+		ui.addToast("Terjadi kesalahan saat membuat PDF. Pastikan logo dapat diakses.", 'error');
 	}
 }
