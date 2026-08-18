@@ -15,6 +15,7 @@
 		tanggal_pembuatan: arsip.tanggal_pembuatan || '',
 		tujuan: arsip.tujuan || '',
 		perihal: arsip.perihal || '',
+		nama_pemohon: arsip.nama_pemohon || '',
 		keterangan: arsip.keterangan || '',
 		file_url: arsip.file_url || ''
 	});
@@ -228,9 +229,15 @@
 				</div>
 				
 				<div class="space-y-1 sm:col-span-2">
-					<label class="text-sm font-medium text-slate-700" for="keterangan">Nama Pemohon & Keterangan</label>
-					<input bind:value={formData.keterangan} type="text" id="keterangan" placeholder="Nama warga (Misal: Budi Santoso) atau catatan tambahan" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-shadow" />
-					<p class="text-[11px] text-slate-500 mt-1">Biasanya diisi dengan nama warga yang menjadi subjek/peminta surat tersebut.</p>
+					<label class="text-sm font-medium text-slate-700" for="nama_pemohon">Nama Pemohon</label>
+					<input bind:value={formData.nama_pemohon} type="text" id="nama_pemohon" placeholder="Nama warga (Misal: Budi Santoso)" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-primary-500 focus:ring-1 focus:ring-primary-500 outline-none" />
+					<p class="text-[11px] text-slate-500 mt-1">Nama warga yang menjadi subjek/peminta surat tersebut.</p>
+				</div>
+
+				<div class="space-y-1 sm:col-span-2">
+					<label class="text-sm font-medium text-slate-700" for="keterangan">Catatan Tambahan (Keterangan)</label>
+					<input bind:value={formData.keterangan} type="text" id="keterangan" placeholder="Catatan opsional (Misal: Untuk syarat BPJS)" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-shadow" />
+					<p class="text-[11px] text-slate-500 mt-1">Alasan atau keterangan lain yang spesifik tentang surat ini.</p>
 				</div>
 			</div>
 

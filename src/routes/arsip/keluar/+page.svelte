@@ -165,15 +165,19 @@
 							<div class="p-4 space-y-3 relative">
 								<h3 class="text-[15px] font-bold text-slate-800 leading-snug pr-8 group-hover:text-primary-700 transition-colors">{surat.perihal || 'Tanpa Perihal'}</h3>
 								
-								<div class="flex items-center gap-2 text-sm text-slate-600">
+								<div class="flex items-center gap-2 text-sm text-slate-600 mt-1">
 									<div class="flex h-6 w-6 items-center justify-center rounded-full bg-slate-100 flex-shrink-0">
 										<Send size={12} class="text-slate-500"/>
 									</div>
 									<span class="truncate font-medium">{surat.tujuan || '-'}</span>
 								</div>
 
+								{#if surat.nama_pemohon}
+									<p class="text-xs text-slate-500 bg-blue-50 p-2 rounded-lg border border-blue-100 mt-2">Pemohon: <span class="text-slate-700 font-medium">{surat.nama_pemohon}</span></p>
+								{/if}
+
 								{#if surat.keterangan}
-									<p class="text-xs text-slate-500 bg-slate-50 p-2 rounded-lg border border-slate-100">Ket: <span class="text-slate-700">{surat.keterangan}</span></p>
+									<p class="text-xs text-slate-500 bg-slate-50 p-2 rounded-lg border border-slate-100 mt-2">Ket: <span class="text-slate-700">{surat.keterangan}</span></p>
 								{/if}
 
 								<!-- File Action -->
@@ -206,7 +210,8 @@
 								<th class="px-4 py-4 whitespace-nowrap">Tgl. Pembuatan</th>
 								<th class="px-4 py-4 min-w-[200px]">Tujuan</th>
 								<th class="px-4 py-4 min-w-[250px]">Perihal</th>
-								<th class="px-4 py-4 whitespace-nowrap">Ket</th>
+								<th class="px-4 py-4 min-w-[150px]">Nama Pemohon</th>
+								<th class="px-4 py-4 min-w-[150px]">Ket</th>
 								<th class="px-4 py-4 whitespace-nowrap text-center">Dokumen</th>
 							</tr>
 						</thead>
@@ -218,6 +223,7 @@
 									<td class="px-4 py-3 whitespace-nowrap text-slate-500">{formatDate(surat.tanggal_pembuatan)}</td>
 									<td class="px-4 py-3 font-medium text-slate-700">{surat.tujuan || '-'}</td>
 									<td class="px-4 py-3 font-semibold text-slate-800 group-hover:text-primary-700">{surat.perihal || '-'}</td>
+									<td class="px-4 py-3 text-slate-700 font-medium">{surat.nama_pemohon || '-'}</td>
 									<td class="px-4 py-3 text-slate-500">{surat.keterangan || '-'}</td>
 									<td class="px-4 py-3 text-center align-middle">
 										{#if surat.file_url}

@@ -43,7 +43,7 @@ export async function POST({ request }) {
 				required: ['nomor_surat', 'tanggal_terima', 'asal_surat', 'perihal']
 			};
 		} else {
-			prompt = `Ekstrak informasi dari rancangan surat pemerintahan desa ini. Carikan nomor_surat, lalu pecah menjadi nomor_register (angka urut) dan nomor_index (kode klasifikasi). Carikan juga tanggal_pembuatan (format YYYY-MM-DD), perihal, tujuan instansi, dan nama_pemohon (warga yang meminta surat).`;
+			prompt = `Ekstrak informasi dari rancangan surat pemerintahan desa ini. Carikan nomor_surat, lalu pecah menjadi nomor_register (angka urut) dan nomor_index (kode klasifikasi). Carikan juga tanggal_pembuatan (format YYYY-MM-DD), perihal, tujuan instansi, nama_pemohon (warga yang meminta surat), dan keterangan (alasan spesifik/catatan tambahan pada surat jika ada).`;
 			responseSchema = {
 				type: 'OBJECT',
 				properties: {
@@ -52,7 +52,8 @@ export async function POST({ request }) {
 					tanggal_pembuatan: { type: 'STRING', description: 'Tanggal pembuatan surat format YYYY-MM-DD' },
 					perihal: { type: 'STRING', description: 'Maksud atau judul utama surat' },
 					tujuan: { type: 'STRING', description: 'Instansi tujuan penerima surat' },
-					nama_pemohon: { type: 'STRING', description: 'Nama warga yang menjadi subjek surat' }
+					nama_pemohon: { type: 'STRING', description: 'Nama warga yang menjadi subjek surat' },
+					keterangan: { type: 'STRING', description: 'Alasan spesifik atau catatan terkait surat' }
 				},
 				required: ['perihal', 'tanggal_pembuatan']
 			};
