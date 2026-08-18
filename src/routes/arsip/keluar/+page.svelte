@@ -2,6 +2,7 @@
 	import { Search, Filter, Plus, Send, LayoutGrid, List, FileBadge, ExternalLink, Download, FileType2 } from '@lucide/svelte';
 	import { goto } from '$app/navigation';
 	import { downloadExcel, downloadPDF } from '$lib/exportUtils';
+	import { auth } from '$lib/stores/auth.svelte.ts';
 
 	let { data } = $props();
 	let arsipKeluar = $derived(data.arsipKeluar || []);
@@ -307,10 +308,12 @@
 	</div>
 	
 	<!-- FAB for mobile -->
+	{#if auth.isOperator}
 	<button 
 		class="fixed bottom-6 right-6 flex h-14 w-14 items-center justify-center rounded-full bg-primary-600 text-white shadow-lg shadow-primary-600/30 transition-transform hover:scale-105 active:scale-95 md:hidden z-10"
 		onclick={() => goto('/arsip/keluar/tambah')}
 	>
 		<Plus size={24} strokeWidth={2.5} />
 	</button>
+	{/if}
 </div>

@@ -3,6 +3,7 @@
 	import { supabase } from '$lib/supabaseClient';
 	import { goto } from '$app/navigation';
 	import { ui } from '$lib/stores/ui.svelte.ts';
+	import { auth } from '$lib/stores/auth.svelte.ts';
 
 	let { data } = $props();
 	let arsip = data.arsip;
@@ -228,6 +229,7 @@
 			</button>
 			<h1 class="text-xl font-bold tracking-tight text-slate-800">Detail Surat Keluar</h1>
 		</div>
+		{#if auth.isOperator}
 		<button
 			type="button"
 			onclick={handleDelete}
@@ -242,6 +244,7 @@
 				Hapus
 			{/if}
 		</button>
+		{/if}
 	</header>
 
 	<main class="flex-1 overflow-y-auto p-4 pb-8">
@@ -484,6 +487,7 @@
 								Lihat File Saat Ini
 								<ExternalLink size={12} />
 							</a>
+							{#if auth.isOperator}
 							<button
 								type="button"
 								onclick={handleRemoveFileOnly}
@@ -492,11 +496,13 @@
 							>
 								Hapus File Saja
 							</button>
+							{/if}
 						</div>
 					{/if}
 				</div>
 
 				<div class="space-y-1">
+					{#if auth.isOperator}
 					<label class="text-sm font-medium text-slate-700" for="file_upload"
 						>Ganti File (Unggah Baru)</label
 					>
@@ -538,6 +544,7 @@
 						Pilih file baru jika ingin mengganti dokumen sebelumnya. Anda bisa memilih lebih dari
 						satu gambar sekaligus untuk digabungkan menjadi 1 dokumen PDF utuh.
 					</p>
+					{/if}
 				</div>
 			</div>
 
@@ -599,10 +606,11 @@
 				>
 					Batal
 				</button>
+				{#if auth.isOperator}
 				<button
 					type="submit"
 					disabled={isLoading || isDeleting}
-					class="bg-primary-600 hover:bg-primary-700 flex flex-1 items-center justify-center gap-2 rounded-xl py-3 font-semibold text-white shadow-sm transition-colors disabled:opacity-70"
+					class="flex flex-1 items-center justify-center gap-2 rounded-xl bg-blue-600 py-3 font-semibold text-white shadow-sm transition-colors hover:bg-blue-700 disabled:opacity-70"
 				>
 					{#if isLoading}
 						<Loader2 class="animate-spin" size={18} />
@@ -612,6 +620,7 @@
 						Simpan Perubahan
 					{/if}
 				</button>
+				{/if}
 			</div>
 		</form>
 	</main>

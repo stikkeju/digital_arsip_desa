@@ -3,6 +3,7 @@
 	import { supabase } from '$lib/supabaseClient';
 	import { goto } from '$app/navigation';
 	import { ui } from '$lib/stores/ui.svelte.ts';
+	import { auth } from '$lib/stores/auth.svelte.ts';
 
 	let { data } = $props();
 	let arsip = data.arsip;
@@ -233,6 +234,7 @@
 			</button>
 			<h1 class="text-xl font-bold tracking-tight text-slate-800">Detail Surat Masuk</h1>
 		</div>
+		{#if auth.isOperator}
 		<button
 			type="button"
 			onclick={handleDelete}
@@ -247,6 +249,7 @@
 				Hapus
 			{/if}
 		</button>
+		{/if}
 	</header>
 
 	<main class="flex-1 overflow-y-auto p-4 pb-8">
@@ -572,6 +575,7 @@
 				>
 					Batal
 				</button>
+				{#if auth.isOperator}
 				<button
 					type="submit"
 					disabled={isLoading || isDeleting}
@@ -585,6 +589,7 @@
 						Simpan Perubahan
 					{/if}
 				</button>
+				{/if}
 			</div>
 		</form>
 	</main>
