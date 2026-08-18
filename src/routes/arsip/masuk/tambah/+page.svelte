@@ -3,6 +3,7 @@
 	import { supabase } from '$lib/supabaseClient';
 	import { goto } from '$app/navigation';
 	import { ui } from '$lib/stores/ui.svelte.ts';
+	import { compressImageFiles } from '$lib/clientUtils';
 
 	let { data } = $props();
 
@@ -26,6 +27,7 @@
 	
 	let selectedFiles = $state<File[]>([]);
 	let isScanning = $state(false);
+	let isCompressing = $state(false);
 
 	async function handleAutoFill() {
 		if (selectedFiles.length === 0) return;
@@ -62,10 +64,15 @@
 		}
 	}
 
-	function handleFileChange(e: Event) {
+	async function handleFileChange(e: Event) {
 		const target = e.target as HTMLInputElement;
 		if (target.files && target.files.length > 0) {
-			selectedFiles = Array.from(target.files);
+			isCompressing = true;
+			try {
+				selectedFiles = await compressImageFiles(Array.from(target.files));
+			} finally {
+				isCompressing = false;
+			}
 		} else {
 			selectedFiles = [];
 		}
@@ -211,8 +218,16 @@
 				<h2 class="font-semibold text-slate-800 border-b border-slate-100 pb-2">Dokumen Digital</h2>
 				<div class="space-y-1">
 					<label class="text-sm font-medium text-slate-700" for="file_upload">Unggah Foto / PDF Surat</label>
-					<input type="file" id="file_upload" accept="image/jpeg, image/png, application/pdf" multiple onchange={handleFileChange} class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-primary-500 focus:ring-1 focus:ring-primary-500 outline-none file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary-50 file:text-primary-700 hover:file:bg-primary-100" />
-					{#if selectedFiles.length > 0}
+					<input type="file" id="file_upload" accept="image/jpeg, image/png, application/pdf" multiple onchange={handleFileChange} disabled={isCompressing} class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-primary-500 focus:ring-1 focus:ring-primary-500 outline-none file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary-50 file:text-primary-700 hover:file:bg-primary-100 disabled:opacity-50" />
+					
+					{#if isCompressing}
+						<div class="mt-2 flex items-center gap-2 text-sm text-amber-600 bg-amber-50 p-3 rounded-lg">
+							<Loader2 class="animate-spin" size={16} />
+							<span>Mengompresi gambar untuk menghemat kuota...</span>
+						</div>
+					{/if}
+
+					{#if selectedFiles.length > 0 && !isCompressing}
 						<div class="mt-2 p-2 bg-blue-50 rounded-lg">
 							<p class="text-xs font-semibold text-blue-700">{selectedFiles.length} file dipilih:</p>
 							<ul class="text-[11px] text-blue-600 list-disc list-inside mt-1">

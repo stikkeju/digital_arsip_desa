@@ -4,6 +4,7 @@
 	import { goto } from '$app/navigation';
 	import { ui } from '$lib/stores/ui.svelte.ts';
 	import { auth } from '$lib/stores/auth.svelte.ts';
+	import { compressImageFiles } from '$lib/clientUtils';
 
 	let { data } = $props();
 	let arsip = data.arsip;
@@ -33,11 +34,17 @@
 
 	let newFieldKey = $state('');
 	let selectedFiles = $state<File[]>([]);
+	let isCompressing = $state(false);
 
-	function handleFileChange(e: Event) {
+	async function handleFileChange(e: Event) {
 		const target = e.target as HTMLInputElement;
 		if (target.files && target.files.length > 0) {
-			selectedFiles = Array.from(target.files);
+			isCompressing = true;
+			try {
+				selectedFiles = await compressImageFiles(Array.from(target.files));
+			} finally {
+				isCompressing = false;
+			}
 		} else {
 			selectedFiles = [];
 		}
@@ -512,9 +519,18 @@
 						accept="image/jpeg, image/png, application/pdf"
 						multiple
 						onchange={handleFileChange}
-						class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none file:mr-4 file:rounded-full file:border-0 file:bg-blue-50 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-blue-700 hover:file:bg-blue-100 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+						disabled={isCompressing}
+						class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none file:mr-4 file:rounded-full file:border-0 file:bg-blue-50 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-blue-700 hover:file:bg-blue-100 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 disabled:opacity-50"
 					/>
-					{#if selectedFiles.length > 0}
+					
+					{#if isCompressing}
+						<div class="mt-2 flex items-center gap-2 text-sm text-amber-600 bg-amber-50 p-3 rounded-lg">
+							<Loader2 class="animate-spin" size={16} />
+							<span>Mengompresi gambar untuk menghemat kuota...</span>
+						</div>
+					{/if}
+
+					{#if selectedFiles.length > 0 && !isCompressing}
 						<div class="mt-2 rounded-lg bg-blue-50 p-2">
 							<p class="text-xs font-semibold text-blue-700">
 								{selectedFiles.length} file dipilih:
