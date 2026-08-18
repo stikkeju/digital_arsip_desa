@@ -96,65 +96,71 @@
 
 	<div class="space-y-4 p-4">
 		<!-- Actions Bar -->
-		<div class="flex flex-col sm:flex-row items-center gap-2">
-			<div class="relative flex-1 w-full">
-				<Search class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-				<input 
-					type="text" 
-					bind:value={searchQuery}
-					placeholder="Cari arsip..." 
-					class="w-full rounded-xl border border-slate-200 bg-white py-2 pl-10 pr-4 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 transition-all"
-				/>
+		<div class="flex flex-col gap-3">
+			<div class="flex flex-col lg:flex-row items-center gap-2">
+				<!-- Search -->
+				<div class="relative flex-1 w-full">
+					<Search class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+					<input 
+						type="text" 
+						bind:value={searchQuery}
+						placeholder="Cari arsip..." 
+						class="w-full rounded-xl border border-slate-200 bg-white py-2 pl-10 pr-4 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 transition-all"
+					/>
+				</div>
+				
+				<!-- Filters and View Toggles -->
+				<div class="flex gap-2 w-full lg:w-auto">
+					<select bind:value={filterMonth} class="rounded-xl border border-slate-200 bg-white py-2 px-3 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 flex-1 lg:flex-none">
+						<option value="">Semua Bulan</option>
+						<option value="1">Januari</option>
+						<option value="2">Februari</option>
+						<option value="3">Maret</option>
+						<option value="4">April</option>
+						<option value="5">Mei</option>
+						<option value="6">Juni</option>
+						<option value="7">Juli</option>
+						<option value="8">Agustus</option>
+						<option value="9">September</option>
+						<option value="10">Oktober</option>
+						<option value="11">November</option>
+						<option value="12">Desember</option>
+					</select>
+
+					<select bind:value={filterYear} class="rounded-xl border border-slate-200 bg-white py-2 px-3 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 flex-1 lg:flex-none">
+						<option value="">Semua Tahun</option>
+						{#each Array.from({length: 10}, (_, i) => new Date().getFullYear() - i) as year}
+							<option value={year.toString()}>{year}</option>
+						{/each}
+					</select>
+
+					<div class="flex rounded-xl border border-slate-200 bg-white p-1 shadow-sm shrink-0">
+						<button 
+							class="rounded-lg p-1.5 transition-colors {viewMode === 'card' ? 'bg-blue-50 text-blue-600 shadow-sm' : 'text-slate-400 hover:text-slate-600'}"
+							onclick={() => viewMode = 'card'}
+						>
+							<LayoutGrid size={18} strokeWidth={2.5} />
+						</button>
+						<button 
+							class="rounded-lg p-1.5 transition-colors {viewMode === 'table' ? 'bg-blue-50 text-blue-600 shadow-sm' : 'text-slate-400 hover:text-slate-600'}"
+							onclick={() => viewMode = 'table'}
+						>
+							<List size={18} strokeWidth={2.5} />
+						</button>
+					</div>
+				</div>
 			</div>
-			
-			<div class="flex gap-2 w-full sm:w-auto">
-				<select bind:value={filterMonth} class="rounded-xl border border-slate-200 bg-white py-2 px-3 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 flex-1 sm:flex-none">
-					<option value="">Semua Bulan</option>
-					<option value="1">Januari</option>
-					<option value="2">Februari</option>
-					<option value="3">Maret</option>
-					<option value="4">April</option>
-					<option value="5">Mei</option>
-					<option value="6">Juni</option>
-					<option value="7">Juli</option>
-					<option value="8">Agustus</option>
-					<option value="9">September</option>
-					<option value="10">Oktober</option>
-					<option value="11">November</option>
-					<option value="12">Desember</option>
-				</select>
 
-				<select bind:value={filterYear} class="rounded-xl border border-slate-200 bg-white py-2 px-3 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 flex-1 sm:flex-none">
-					<option value="">Semua Tahun</option>
-					{#each Array.from({length: 10}, (_, i) => new Date().getFullYear() - i) as year}
-						<option value={year.toString()}>{year}</option>
-					{/each}
-				</select>
-
-				<div class="flex rounded-xl border border-slate-200 bg-white p-1 shadow-sm shrink-0">
-					<button 
-						class="rounded-lg p-1.5 transition-colors {viewMode === 'card' ? 'bg-blue-50 text-blue-600 shadow-sm' : 'text-slate-400 hover:text-slate-600'}"
-						onclick={() => viewMode = 'card'}
-					>
-						<LayoutGrid size={18} strokeWidth={2.5} />
-					</button>
-					<button 
-						class="rounded-lg p-1.5 transition-colors {viewMode === 'table' ? 'bg-blue-50 text-blue-600 shadow-sm' : 'text-slate-400 hover:text-slate-600'}"
-						onclick={() => viewMode = 'table'}
-					>
-						<List size={18} strokeWidth={2.5} />
-					</button>
-				</div>
-				<div class="flex gap-2 shrink-0">
-					<button onclick={handleExport} class="flex items-center gap-2 rounded-xl bg-green-50 px-3 py-2 text-sm font-semibold text-green-700 transition-colors hover:bg-green-100">
-						<Download size={16} />
-						<span>Excel</span>
-					</button>
-					<button onclick={handlePDF} class="flex items-center gap-2 rounded-xl bg-red-50 px-3 py-2 text-sm font-semibold text-red-700 transition-colors hover:bg-red-100">
-						<FileType2 size={16} />
-						<span>PDF</span>
-					</button>
-				</div>
+			<!-- Export Buttons Row -->
+			<div class="flex gap-2 w-full justify-end">
+				<button onclick={handleExport} class="flex items-center gap-2 rounded-xl bg-green-50 px-4 py-2 text-sm font-semibold text-green-700 transition-colors hover:bg-green-100 flex-1 sm:flex-none justify-center">
+					<Download size={16} />
+					<span>Excel</span>
+				</button>
+				<button onclick={handlePDF} class="flex items-center gap-2 rounded-xl bg-red-50 px-4 py-2 text-sm font-semibold text-red-700 transition-colors hover:bg-red-100 flex-1 sm:flex-none justify-center">
+					<FileType2 size={16} />
+					<span>PDF</span>
+				</button>
 			</div>
 		</div>
 
