@@ -1,8 +1,7 @@
 <script lang="ts">
-	import { Search, Filter, Plus, FileText, LayoutGrid, List, FileBadge, ExternalLink, Download, Printer } from '@lucide/svelte';
+	import { Search, Filter, Plus, FileText, LayoutGrid, List, FileBadge, ExternalLink, Download, FileType2 } from '@lucide/svelte';
 	import { goto } from '$app/navigation';
-	import PrintReport from '$lib/components/PrintReport.svelte';
-	import { downloadExcel } from '$lib/exportUtils';
+	import { downloadExcel, downloadPDF } from '$lib/exportUtils';
 
 	let { data } = $props();
 	let arsipMasuk = $derived(data.arsipMasuk || []);
@@ -13,8 +12,6 @@
 
 	let filterMonth = $state('');
 	let filterYear = $state('');
-
-	let isPrinting = $state(false);
 
 	function handleExport() {
 		const exportData = filteredArsip.map((s, i) => ({
@@ -30,12 +27,26 @@
 		downloadExcel(exportData, title, 'Surat Masuk');
 	}
 
-	function handlePrint() {
-		isPrinting = true;
-		setTimeout(() => {
-			window.print();
-			isPrinting = false;
-		}, 300);
+	async function handlePDF() {
+		const title = 'BUKU AGENDA SURAT MASUK';
+		const periode = filterMonth || filterYear ? `${filterMonth ? 'Bulan ' + filterMonth : ''} ${filterYear || ''}`.trim() : 'Semua Waktu';
+		
+		const columns = [
+			{ key: 'no_register', label: 'No. Reg' },
+			{ key: 'no_surat', label: 'No. Surat' },
+			{ key: 'tanggal_terima', label: 'Tanggal Terima' },
+			{ key: 'pengirim', label: 'Pengirim' },
+			{ key: 'perihal', label: 'Perihal' },
+			{ key: 'keterangan', label: 'Keterangan' }
+		].map(c => ({ header: c.label, dataKey: c.key }));
+
+		const data = filteredArsip.map(s => ({
+			...s,
+			tanggal_terima: formatDate(s.tanggal_terima)
+		}));
+
+		const filename = `Surat_Masuk_${filterMonth || 'SemuaBulan'}_${filterYear || 'SemuaTahun'}`;
+		await downloadPDF(title, periode, columns, data, filename);
 	}
 
 	// Client-side search filtering
@@ -139,9 +150,9 @@
 						<Download size={16} />
 						<span class="hidden sm:inline">Excel</span>
 					</button>
-					<button onclick={handlePrint} class="flex items-center gap-2 rounded-xl bg-slate-800 px-3 py-2 text-sm font-semibold text-white transition-colors hover:bg-slate-700">
-						<Printer size={16} />
-						<span class="hidden sm:inline">Cetak</span>
+					<button onclick={handlePDF} class="flex items-center gap-2 rounded-xl bg-red-50 px-3 py-2 text-sm font-semibold text-red-700 transition-colors hover:bg-red-100">
+						<FileType2 size={16} />
+						<span class="hidden sm:inline">PDF</span>
 					</button>
 				</div>
 			</div>
@@ -269,21 +280,3 @@
 		<Plus size={24} strokeWidth={2.5} />
 	</button>
 </div>
-
-<PrintReport 
-	title="BUKU AGENDA SURAT MASUK"
-	periode={filterMonth || filterYear ? `${filterMonth ? 'Bulan ' + filterMonth : ''} ${filterYear || ''}`.trim() : 'Semua Waktu'}
-	columns={[
-		{ key: 'no_register', label: 'Nomor Register' },
-		{ key: 'no_surat', label: 'Nomor Surat' },
-		{ key: 'tanggal_terima', label: 'Tanggal Terima' },
-		{ key: 'pengirim', label: 'Pengirim' },
-		{ key: 'perihal', label: 'Perihal' },
-		{ key: 'keterangan', label: 'Keterangan' }
-	]}
-	data={filteredArsip.map(s => ({
-		...s,
-		tanggal_terima: formatDate(s.tanggal_terima)
-	}))}
-	{isPrinting}
-/>

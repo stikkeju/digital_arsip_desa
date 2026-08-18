@@ -1,8 +1,7 @@
 <script lang="ts">
-	import { Search, Filter, Plus, Send, LayoutGrid, List, FileBadge, ExternalLink, Download, Printer } from '@lucide/svelte';
+	import { Search, Filter, Plus, Send, LayoutGrid, List, FileBadge, ExternalLink, Download, FileType2 } from '@lucide/svelte';
 	import { goto } from '$app/navigation';
-	import PrintReport from '$lib/components/PrintReport.svelte';
-	import { downloadExcel } from '$lib/exportUtils';
+	import { downloadExcel, downloadPDF } from '$lib/exportUtils';
 
 	let { data } = $props();
 	let arsipKeluar = $derived(data.arsipKeluar || []);
@@ -20,8 +19,6 @@
 		Array.from(new Set(arsipKeluar.map(s => s.no_index ? s.no_index.split('/')[0].trim() : '').filter(Boolean))).sort()
 	);
 
-	let isPrinting = $state(false);
-
 	function handleExport() {
 		const exportData = filteredArsip.map((s, i) => ({
 			'No': i + 1,
@@ -37,12 +34,29 @@
 		downloadExcel(exportData, title, 'Surat Keluar');
 	}
 
-	function handlePrint() {
-		isPrinting = true;
-		setTimeout(() => {
-			window.print();
-			isPrinting = false;
-		}, 300);
+	async function handlePDF() {
+		const title = 'BUKU AGENDA SURAT KELUAR';
+		const periode = filterMonth || filterYear ? `${filterMonth ? 'Bulan ' + filterMonth : ''} ${filterYear || ''}`.trim() : 'Semua Waktu';
+		
+		const columns = [
+			{ key: 'no_register', label: 'No. Reg' },
+			{ key: 'no_index', label: 'No. Index' },
+			{ key: 'tanggal_pembuatan', label: 'Tanggal' },
+			{ key: 'tujuan', label: 'Tujuan' },
+			{ key: 'perihal', label: 'Perihal' },
+			{ key: 'nama_pemohon', label: 'Pemohon' },
+			{ key: 'keterangan', label: 'Keterangan' }
+		].map(c => ({ header: c.label, dataKey: c.key }));
+
+		const data = filteredArsip.map(s => ({
+			...s,
+			tanggal_pembuatan: formatDate(s.tanggal_pembuatan),
+			nama_pemohon: s.nama_pemohon || '-',
+			keterangan: s.keterangan || '-'
+		}));
+
+		const filename = `Surat_Keluar_${filterMonth || 'SemuaBulan'}_${filterYear || 'SemuaTahun'}`;
+		await downloadPDF(title, periode, columns, data, filename);
 	}
 
 	// Client-side search filtering
@@ -159,9 +173,9 @@
 						<Download size={16} />
 						<span class="hidden sm:inline">Excel</span>
 					</button>
-					<button onclick={handlePrint} class="flex items-center gap-2 rounded-xl bg-slate-800 px-3 py-2 text-sm font-semibold text-white transition-colors hover:bg-slate-700">
-						<Printer size={16} />
-						<span class="hidden sm:inline">Cetak</span>
+					<button onclick={handlePDF} class="flex items-center gap-2 rounded-xl bg-red-50 px-3 py-2 text-sm font-semibold text-red-700 transition-colors hover:bg-red-100">
+						<FileType2 size={16} />
+						<span class="hidden sm:inline">PDF</span>
 					</button>
 				</div>
 			</div>
@@ -294,24 +308,3 @@
 		<Plus size={24} strokeWidth={2.5} />
 	</button>
 </div>
-
-<PrintReport 
-	title="BUKU AGENDA SURAT KELUAR"
-	periode={filterMonth || filterYear ? `${filterMonth ? 'Bulan ' + filterMonth : ''} ${filterYear || ''}`.trim() : 'Semua Waktu'}
-	columns={[
-		{ key: 'no_register', label: 'No. Reg' },
-		{ key: 'no_index', label: 'No. Index' },
-		{ key: 'tanggal_pembuatan', label: 'Tanggal' },
-		{ key: 'tujuan', label: 'Tujuan' },
-		{ key: 'perihal', label: 'Perihal' },
-		{ key: 'nama_pemohon', label: 'Nama Pemohon' },
-		{ key: 'keterangan', label: 'Keterangan' }
-	]}
-	data={filteredArsip.map(s => ({
-		...s,
-		tanggal_pembuatan: formatDate(s.tanggal_pembuatan),
-		nama_pemohon: s.nama_pemohon || '-',
-		keterangan: s.keterangan || '-'
-	}))}
-	{isPrinting}
-/>
