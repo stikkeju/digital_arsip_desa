@@ -1,42 +1,39 @@
-# sv
+# Sistem Informasi Digitalisasi Arsip Desa
 
-Everything you need to build a Svelte project, powered by [`sv`](https://github.com/sveltejs/cli).
+Sistem Informasi Digitalisasi Arsip Desa adalah aplikasi berbasis web yang dirancang khusus untuk memudahkan Operator Desa (Pemerintahan Desa) dalam mendata, melacak, dan menyimpan arsip **Surat Masuk** dan **Surat Keluar** secara digital. Aplikasi ini dikembangkan untuk meningkatkan efisiensi dan keamanan data kependudukan maupun administrasi desa.
 
-## Creating a project
+## Fitur Utama
 
-If you're seeing this, you've probably already done this step. Congrats!
+- **Penyimpanan Aman (Cloud-Based):** Semua dokumen pindaian (*scan*) akan dikompresi otomatis di sisi klien (browser) untuk menghemat ruang, lalu diunggah dan disimpan dengan aman menggunakan integrasi Google Drive.
+- **Smart AI OCR Autofill:** Cukup unggah foto dokumen fisik atau kuitansi, dan sistem (menggunakan teknologi pengenalan karakter optik modern) akan secara otomatis membaca dan mengisi kolom formulir seperti Nomor Surat, Tanggal, Perihal, dan Nama Pemohon, sehingga meminimalisir kesalahan pengetikan manual (Typo).
+- **Sistem Role-Based Access (RBAC):** Memiliki hak akses terpisah antara Admin (dapat mengubah pengaturan & hak akses) dan Operator (bertugas mendata arsip harian).
+- **Dasbor Interaktif & Pencarian Cerdas:** Dilengkapi dengan ringkasan jumlah surat per periode (mingguan/bulanan), dan filter kode indeks otomatis.
+- **Ekspor Laporan Otomatis:** Memungkinkan desa mengekspor daftar surat ke dalam format PDF standar A4 maupun Excel (XLSX) dengan format yang sudah disesuaikan persis seperti buku arsip fisik.
 
-```sh
-# create a new project
-npx sv create my-app
-```
+## Teknologi yang Digunakan
 
-To recreate this project with the same configuration:
+Aplikasi ini dibangun dengan *stack* modern untuk memastikan performa yang cepat dan pengalaman pengguna yang halus:
+- **Frontend Framework:** SvelteKit (Svelte 5 Runes)
+- **Styling:** Tailwind CSS v4 & Lucide Icons
+- **Database & Auth:** Supabase (PostgreSQL + RLS Auth)
+- **Penyimpanan File:** Google Drive API (OAuth2)
+- **Kecerdasan Buatan:** Google Gemini API (OCR)
+- **Pengolah Klien:** Browser Image Compression & jsPDF
 
-```sh
-# recreate this project
-npx sv@0.17.0 create --template minimal --types ts --add prettier eslint tailwindcss="plugins:none" sveltekit-adapter="adapter:auto" --install npm .
-```
+## Cara Menjalankan Secara Lokal (Development)
 
-## Developing
+1. Pastikan Anda telah menginstal **Node.js** (versi 18 ke atas).
+2. Klon (*clone*) repositori ini ke komputer Anda.
+3. Jalankan perintah instalasi dependensi:
+   ```sh
+   npm install
+   ```
+4. Salin file `.env.example` menjadi `.env` dan isi semua variabel kunci rahasia yang dibutuhkan (Supabase, Google Drive, Gemini API).
+5. Jalankan *development server*:
+   ```sh
+   npm run dev
+   ```
+6. Buka `http://localhost:5173` di *browser* Anda.
 
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
-
-```sh
-npm run dev
-
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
-```
-
-## Building
-
-To create a production version of your app:
-
-```sh
-npm run build
-```
-
-You can preview the production build with `npm run preview`.
-
-> To deploy your app, you may need to install an [adapter](https://svelte.dev/docs/kit/adapters) for your target environment.
+## Kredit
+Sistem ini awalnya dirancang dan dibangun oleh **Tim KKM Kelompok 96 Universitas Bina Bangsa Tahun 2026** sebagai bentuk pengabdian dan modernisasi administrasi untuk Pemerintah Desa Klutuk, Kecamatan Mekar Baru, Kabupaten Tangerang.
